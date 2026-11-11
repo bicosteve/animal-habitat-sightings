@@ -1,5 +1,5 @@
 -- =============================================================================
--- 04_queries.sql
+-- 03_queries.sql
 -- Demonstration and verification queries for the application.
 -- Bind variables are shown where a geometry or ID should be supplied by Java.
 -- =============================================================================
