@@ -29,6 +29,12 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>rychly-edu-dbs</id>
+			<url>https://rychly-edu.gitlab.io/dbs/mvn-repo</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -68,6 +74,21 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.database.spatial</groupId>
+			<artifactId>sdoapi</artifactId>
+			<version>23.26</version>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc11</artifactId>
+			<version>23.9.0.25.07</version>
+		</dependency>
+		<dependency>
+			<groupId>oracle.ord.im</groupId>
+			<artifactId>ordim</artifactId>
+			<version>12.2.0.1.0</version>
 		</dependency>
 	</dependencies>
 
