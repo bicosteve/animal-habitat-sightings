@@ -1,3 +1,10 @@
 spring:
   application:
     name: Animal-Habitat-Sightings
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+
+
+server:
+  port: 8080
