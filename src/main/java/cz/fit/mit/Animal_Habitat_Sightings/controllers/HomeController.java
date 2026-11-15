@@ -10,4 +10,19 @@ public class HomeController {
     public String home(){
         return "index";
     }
+
+    @GetMapping("/habitats")
+    public String habitats(){
+        return "habitats";
+    }
+
+    @GetMapping("/sightings")
+    public String sightings(){
+        return "sightings";
+    }
+
+    @GetMapping("/analysis")
+    public String analysis(){
+        return "analysis";
+    }
 }

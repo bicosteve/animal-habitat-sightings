@@ -3,12 +3,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<nav th:fragment="navbar"
+<nav th:fragment="navbar(activePage)"
      class="navbar navbar-expand-lg navbar-dark bg-success">
 
     <div class="container-fluid">
 
-        <a class="navbar-brand" th:href="@{/}">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
             Animal Habitats & Sightings
         </a>
 
@@ -28,32 +28,39 @@
             <ul class="navbar-nav ms-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'dashboard'} ? 'active'"
+                       th:href="@{/}">
                         Dashboard
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/habitats}">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'habitats'} ? 'active'"
+                       th:href="@{/habitats}">
                         Habitats
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/sightings}">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'sightings'} ? 'active'"
+                       th:href="@{/sightings}">
                         Sightings
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/analysis}">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'analysis'} ? 'active'"
+                       th:href="@{/analysis}">
                         Distance Analysis
                     </a>
                 </li>
 
             </ul>
         </div>
-
     </div>
 </nav>
 
