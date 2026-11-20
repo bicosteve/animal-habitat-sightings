@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Animal Habitats & Sightings</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('dashboard')}"></div>
+
+
+<main class="container-fluid mt-3">
+    <div class="row g-3">
+
+        <!-- Left sidebar -->
+        <aside class="col-12 col-lg-3 col-xl-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>Quick Actions</h5>
+
+                    <button class="btn btn-success w-100 mb-2">
+                        Add Habitat
+                    </button>
+
+                    <button class="btn btn-primary w-100 mb-3">
+                        Add Sighting
+                    </button>
+
+                    <hr>
+
+                    <h6>Filters</h6>
+
+                    <label for="animalFilter"
+                           class="form-label">
+                        Animal
+                    </label>
+
+                    <select id="animalFilter"
+                            class="form-select mb-3">
+                        <option value="">All Animals</option>
+                    </select>
+
+                    <label for="habitatFilter"
+                           class="form-label">
+                        Habitat
+                    </label>
+
+                    <select id="habitatFilter"
+                            class="form-select">
+                        <option value="">All Habitats</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center map -->
+        <section class="col-12 col-lg-6 col-xl-7">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <strong>Habitat & Sighting Map</strong>
+                </div>
+
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right details panel -->
+        <aside class="col-12 col-lg-3">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <strong>Details</strong>
+                </div>
+
+                <div class="card-body" id="detailsPanel">
+                    <p class="text-muted">
+                        Select a habitat or sighting
+                        on the map to view details.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</main>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Application map initialization -->
+<script th:src="@{/js/map.js}"></script>
+
+</body>
+</html>
