@@ -34,8 +34,8 @@
                     </label>
 
                     <input type="text"
-                           id="habitatName"
                            class="form-control"
+                           id="habitatName"
                            th:field="*{habitatName}"
                            required>
                 </div>
@@ -54,14 +54,17 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="description" class="form-label">
-                        Description
+                    <label for="biomeId" class="form-label">
+                        Biome
                     </label>
 
-                    <textarea id="description"
-                              class="form-control"
-                              th:field="*{description}"
-                              rows="3"></textarea>
+                    <input
+                            class="form-control"
+                            id="biomeId"
+                            type="number"
+                            th:field="*{biomeId}"
+                            min="1"
+                            required >
                 </div>
 
                 <div class="mb-3">
@@ -70,10 +73,11 @@
                     </label>
 
                     <textarea id="polygonGeoJson"
+                              name="polygonGeoJson"
                               class="form-control"
-                              th:field="*{polygonGeoJson}"
                               rows="5"
-                              placeholder='{"type":"Polygon","coordinates":[[[16.60,49.19],[16.61,49.19],[16.61,49.20],[16.60,49.19]]]}'></textarea>
+                              placeholder='{"type":"Polygon","coordinates":[[[16.60,49.19],[16.61,49.19],[16.61,49.20],[16.60,49.19]]]}'>
+                    </textarea>
 
                     <div class="form-text">
                         We will replace this field with
@@ -81,15 +85,17 @@
                     </div>
                 </div>
 
+
+
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">
                         Save Habitat
                     </button>
 
-                    <a th:href="@{/habitats}"
-                       class="btn btn-outline-secondary">
-                        Cancel
-                    </a>
+                                        <a th:href="@{/habitats}"
+                                           class="btn btn-outline-secondary">
+                                            Cancel
+                                        </a>
                 </div>
 
             </form>

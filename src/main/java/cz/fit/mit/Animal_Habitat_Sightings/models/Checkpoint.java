@@ -1,4 +1,4 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Tables;
+package cz.fit.mit.Animal_Habitat_Sightings.models;
 
 import oracle.spatial.geometry.JGeometry;
 
