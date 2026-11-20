@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Habitat</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+<div th:replace="~{fragments/navbar :: navbar('habitats')}"></div>
+
+<main class="container mt-4">
+
+    <h2>Add Habitat</h2>
+    <p class="text-muted">
+        Register a new animal habitat.
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form th:action="@{/habitats}"
+                  th:object="${habitat}"
+                  method="post">
+
+                <div class="mb-3">
+                    <label for="habitatName" class="form-label">
+                        Habitat Name
+                    </label>
+
+                    <input type="text"
+                           id="habitatName"
+                           class="form-control"
+                           th:field="*{habitatName}"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="animalId" class="form-label">
+                        Animal ID
+                    </label>
+
+                    <input type="number"
+                           id="animalId"
+                           class="form-control"
+                           th:field="*{animalId}"
+                           min="1"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">
+                        Description
+                    </label>
+
+                    <textarea id="description"
+                              class="form-control"
+                              th:field="*{description}"
+                              rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="polygonGeoJson" class="form-label">
+                        Polygon GeoJSON (temporary)
+                    </label>
+
+                    <textarea id="polygonGeoJson"
+                              class="form-control"
+                              th:field="*{polygonGeoJson}"
+                              rows="5"
+                              placeholder='{"type":"Polygon","coordinates":[[[16.60,49.19],[16.61,49.19],[16.61,49.20],[16.60,49.19]]]}'></textarea>
+
+                    <div class="form-text">
+                        We will replace this field with
+                        Leaflet polygon drawing.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        Save Habitat
+                    </button>
+
+                    <a th:href="@{/habitats}"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

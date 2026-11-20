@@ -11,11 +11,6 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/habitats")
-    public String habitats(){
-        return "habitats";
-    }
-
     @GetMapping("/sightings")
     public String sightings(){
         return "sightings";
