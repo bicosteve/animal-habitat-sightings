@@ -22,6 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
         16.6068
     ]).addTo(map);
 
+    // Enable Map Editing
+    map.pm.addControls({
+        position: "topleft",
+        drawMarker: true,
+        drawPolyline: true,
+        drawPolygon: true,
+        drawRectangle: false,
+        drawCircle: false,
+        drawCircleMarker: false,
+        editMode: true,
+        dragMode: true,
+        removalMode: true,
+        cutPolygon: false
+    });
+
     sighting.bindPopup("Red Fox Sighting");
 
     sighting.on("click", () => {
