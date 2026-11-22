@@ -1,4 +1,4 @@
-package cz.fit.mit.Animal_Habitat_Sightings.controllers;
+package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

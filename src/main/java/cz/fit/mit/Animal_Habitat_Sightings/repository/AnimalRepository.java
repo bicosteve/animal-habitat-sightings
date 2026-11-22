@@ -1,7 +1,7 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Queries;
+package cz.fit.mit.Animal_Habitat_Sightings.repository;
 
-import cz.fit.mit.Animal_Habitat_Sightings.Models.Animal;
-import org.springframework.stereotype.Service;
+import cz.fit.mit.Animal_Habitat_Sightings.model.Animal;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +10,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class AnimalService {
+@Repository
+public class AnimalRepository {
     public void insertAnimal(Connection connection, Animal animal) throws SQLException {
         String sql = """
                 INSERT INTO animals
@@ -20,8 +20,8 @@ public class AnimalService {
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, animal.getAnimal_name());
-            stmt.setString(2, animal.getScientific_name());
+            stmt.setString(1, animal.getAnimalName());
+            stmt.setString(2, animal.getScientificName());
             stmt.setString(3, animal.getDescription());
 
             stmt.executeUpdate();

@@ -51,11 +51,17 @@
                     </thead>
 
                     <tbody>
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            No habitats loaded yet.
-                        </td>
-                    </tr>
+                        <tr th:each="habitat : ${habitats}">
+                            <td th:text="${habitat.habitatId}">1</td>
+                            <td th:text="${habitat.habitatName}">Habitat name</td>
+                            <td th:text="${habitat.animalId}">0</td>
+                            <td><span class="text-muted">&mdash;</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(habitats)}">
+                            <td colspan="4" class="text-center text-muted">
+                                No habitats loaded yet.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

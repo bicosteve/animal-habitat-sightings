@@ -1,15 +1,15 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Queries;
+package cz.fit.mit.Animal_Habitat_Sightings.repository;
 
-import cz.fit.mit.Animal_Habitat_Sightings.Models.Habitat;
+import cz.fit.mit.Animal_Habitat_Sightings.model.Habitat;
 import oracle.spatial.geometry.JGeometry;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class HabitatService {
+@Repository
+public class HabitatRepository {
     public void insertHabitat(Connection connection, Habitat habitat) throws Exception {
         String sql = ("""
                 INSERT INTO habitats
@@ -17,8 +17,8 @@ public class HabitatService {
                 values(?, ?, ?)
                 """);
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, habitat.getHabitat_name());
-            stmt.setLong(2, habitat.getAnimal_id());
+            stmt.setString(1, habitat.getHabitatName());
+            stmt.setLong(2, habitat.getAnimalId());
 
             if (habitat.getGeom() != null) {
                 Struct obj = JGeometry.storeJS(connection, habitat.getGeom());

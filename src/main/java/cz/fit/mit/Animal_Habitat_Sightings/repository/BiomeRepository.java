@@ -1,15 +1,15 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Queries;
+package cz.fit.mit.Animal_Habitat_Sightings.repository;
 
-import org.springframework.stereotype.Service;
-import cz.fit.mit.Animal_Habitat_Sightings.Models.Biome;
+import org.springframework.stereotype.Repository;
+import cz.fit.mit.Animal_Habitat_Sightings.model.Biome;
 import oracle.spatial.geometry.JGeometry;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class BiomeService {
+@Repository
+public class BiomeRepository {
     public void insertBiome(Connection connection, Biome biome) throws Exception {
         String sql = """
                 INSERT INTO biomes
@@ -18,7 +18,7 @@ public class BiomeService {
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, biome.getBiome_name());
+            stmt.setString(1, biome.getBiomeName());
             stmt.setString(2, biome.getDescription());
 
             Struct obj = JGeometry.storeJS(connection, biome.getGeom());

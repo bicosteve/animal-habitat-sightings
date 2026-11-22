@@ -1,15 +1,15 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Queries;
+package cz.fit.mit.Animal_Habitat_Sightings.repository;
 
-import cz.fit.mit.Animal_Habitat_Sightings.Models.Checkpoint;
+import cz.fit.mit.Animal_Habitat_Sightings.model.Checkpoint;
 import oracle.spatial.geometry.JGeometry;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class CheckpointService {
+@Repository
+public class CheckpointRepository {
     public void insertCheckpoint(Connection connection, Checkpoint checkpoint) throws Exception {
         String sql = """
                 INSERT INTO checkpoints
@@ -18,8 +18,8 @@ public class CheckpointService {
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, checkpoint.getCheckpoint_name());
-            stmt.setString(2, checkpoint.getCheckpoint_type());
+            stmt.setString(1, checkpoint.getCheckpointName());
+            stmt.setString(2, checkpoint.getCheckpointType());
             stmt.setString(3, checkpoint.getDescription());
 
             Struct obj = JGeometry.storeJS(connection, checkpoint.getGeom());

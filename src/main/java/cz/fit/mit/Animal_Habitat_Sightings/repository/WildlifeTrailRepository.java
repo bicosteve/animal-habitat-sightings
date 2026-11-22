@@ -1,16 +1,16 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Queries;
+package cz.fit.mit.Animal_Habitat_Sightings.repository;
 
-import cz.fit.mit.Animal_Habitat_Sightings.Models.Wildlife_Trail;
+import cz.fit.mit.Animal_Habitat_Sightings.model.WildlifeTrail;
 import oracle.spatial.geometry.JGeometry;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class Wildlife_TrailService {
-    public void insertTrail(Connection connection, Wildlife_Trail trail) throws Exception {
+@Repository
+public class WildlifeTrailRepository {
+    public void insertTrail(Connection connection, WildlifeTrail trail) throws Exception {
         String sql = """
                 INSERT INTO wildlife_trails
                 (trail_name, description, geom)
@@ -18,7 +18,7 @@ public class Wildlife_TrailService {
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, trail.getTrail_name());
+            stmt.setString(1, trail.getTrailName());
             stmt.setString(2, trail.getDescription());
 
             Struct obj = JGeometry.storeJS(connection, trail.getGeom());
@@ -28,8 +28,8 @@ public class Wildlife_TrailService {
         }
     }
 
-    public List<Wildlife_Trail> getAllTrails(Connection connection) throws Exception {
-        List<Wildlife_Trail> trails = new ArrayList<>();
+    public List<WildlifeTrail> getAllTrails(Connection connection) throws Exception {
+        List<WildlifeTrail> trails = new ArrayList<>();
 
         try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM wildlife_trails");
              ResultSet rset = stmt.executeQuery()) {
@@ -43,7 +43,7 @@ public class Wildlife_TrailService {
 
                 Timestamp timestamp = rset.getTimestamp("created_at");
 
-                Wildlife_Trail trail = new Wildlife_Trail(
+                WildlifeTrail trail = new WildlifeTrail(
                         rset.getLong("trail_id"),
                         rset.getString("trail_name"),
                         rset.getString("description"),
