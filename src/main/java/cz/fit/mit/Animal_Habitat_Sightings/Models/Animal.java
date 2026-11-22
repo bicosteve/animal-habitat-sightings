@@ -1,4 +1,4 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Tables;
+package cz.fit.mit.Animal_Habitat_Sightings.Models;
 
 public class Animal {
     public Long animal_id;

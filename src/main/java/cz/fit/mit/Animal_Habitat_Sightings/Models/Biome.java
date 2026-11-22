@@ -1,5 +1,6 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Tables;
+package cz.fit.mit.Animal_Habitat_Sightings.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import oracle.spatial.geometry.JGeometry;
 
 public class Biome {
@@ -39,11 +40,28 @@ public class Biome {
         this.description = description;
     }
 
+    @JsonIgnore
     public JGeometry getGeom() {
         return geom;
     }
 
     public void setGeom(JGeometry geom) {
         this.geom = geom;
+    }
+
+    public int getSdo_gtype() {
+        return geom.getType();
+    }
+
+    public int getSdo_srid() {
+        return geom.getSRID();
+    }
+
+    public int[] getSdo_elem_info() {
+        return geom.getElemInfo();
+    }
+
+    public double[] getSdo_ordinates() {
+        return geom.getOrdinatesArray();
     }
 }
