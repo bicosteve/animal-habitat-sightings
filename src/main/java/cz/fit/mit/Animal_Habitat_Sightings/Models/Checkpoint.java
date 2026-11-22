@@ -1,5 +1,6 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Tables;
+package cz.fit.mit.Animal_Habitat_Sightings.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import oracle.spatial.geometry.JGeometry;
 
 import java.time.LocalDateTime;
@@ -54,6 +55,7 @@ public class Checkpoint {
         this.description = description;
     }
 
+    @JsonIgnore
     public JGeometry getGeom() {
         return geom;
     }
@@ -68,5 +70,13 @@ public class Checkpoint {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+
+    public double getLongitude() {
+        return geom.getPoint()[0];
+    }
+
+    public double getLatitude() {
+        return geom.getPoint()[1];
     }
 }

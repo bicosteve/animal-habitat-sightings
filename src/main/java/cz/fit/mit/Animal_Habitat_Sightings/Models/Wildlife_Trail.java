@@ -1,5 +1,6 @@
-package cz.fit.mit.Animal_Habitat_Sightings.Tables;
+package cz.fit.mit.Animal_Habitat_Sightings.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import oracle.spatial.geometry.JGeometry;
 
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ public class Wildlife_Trail {
         this.description = description;
     }
 
+    @JsonIgnore
     public JGeometry getGeom() {
         return geom;
     }
@@ -57,5 +59,21 @@ public class Wildlife_Trail {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+
+    public int getSdo_gtype() {
+        return geom.getType();
+    }
+
+    public int getSdo_srid() {
+        return geom.getSRID();
+    }
+
+    public int[] getSdo_elem_info() {
+        return geom.getElemInfo();
+    }
+
+    public double[] getSdo_ordinates() {
+        return geom.getOrdinatesArray();
     }
 }
