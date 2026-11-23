@@ -21,8 +21,7 @@ public class AnimalRepository {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, animal.getAnimalName());
-            stmt.setString(2, animal.getScientificName());
-            stmt.setString(3, animal.getDescription());
+            stmt.setString(2, animal.getDescription());
 
             stmt.executeUpdate();
         }
@@ -38,7 +37,6 @@ public class AnimalRepository {
                 Animal animal = new Animal(
                         rset.getLong("animal_id"),
                         rset.getString("animal_name"),
-                        rset.getString("scientific_name"),
                         rset.getString("description")
                 );
 

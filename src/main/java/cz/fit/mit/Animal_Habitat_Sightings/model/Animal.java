@@ -13,7 +13,5 @@ public class Animal {
 
     private String animalName;
 
-    private String scientificName;
-
     private String description;
 }

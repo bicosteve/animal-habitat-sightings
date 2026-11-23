@@ -60,19 +60,12 @@ public class HabitatRepository {
         return habitats;
     }
 
-    public void deleteHabitat(Connection connection, long habitatId)
-            throws SQLException {
-
+    public void deleteHabitat(Connection connection, long habitatId) throws SQLException {
         String sql = "DELETE FROM habitats WHERE habitat_id = ?";
 
-        PreparedStatement stmt = connection.prepareStatement(sql);
-
-        try {
+        try(PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, habitatId);
             stmt.executeUpdate();
-
-        } finally {
-            stmt.close();
         }
     }
 }
