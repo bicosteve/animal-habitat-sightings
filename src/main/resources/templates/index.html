@@ -116,6 +116,11 @@
 <!-- Leaflet-Geoman-->
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.js"></script>
 
+<!-- Pass habitats from Spring to JavaScript -->
+<script th:inline="javascript">
+    const habitats = /*[[${habitats}]]*/ [];
+</script>
+
 <!-- Application map initialization -->
 <script th:src="@{/js/map.js}"></script>
 

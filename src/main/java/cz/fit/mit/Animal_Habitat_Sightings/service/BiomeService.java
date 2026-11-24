@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BiomeService {
@@ -28,6 +29,25 @@ public class BiomeService {
             return biomeRepository.getAllBiomes(conn);
         }
     }
+
+    public Map<String, Object> getBiomeDetails(long biomeId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return biomeRepository.getBiomeDetails(conn, biomeId);
+        }
+    }
+
+    public List<Map<String, Object>> getHabitatsInBiome(long biomeId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return biomeRepository.getHabitatsInBiome(conn, biomeId);
+        }
+    }
+
+    public List<Map<String, Object>> getDistancesToHabitats(long biomeId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return biomeRepository.getDistancesToHabitats(conn, biomeId);
+        }
+    }
+
 
     public void deleteBiome(long biomeId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {

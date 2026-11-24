@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CheckpointService {
@@ -26,6 +27,18 @@ public class CheckpointService {
     public List<Checkpoint> getAllCheckpoints() throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return checkpointRepository.getAllCheckpoints(conn);
+        }
+    }
+
+    public Map<String, Object> getCheckpointDetails(long checkpointId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return checkpointRepository.getCheckpointDetails(conn, checkpointId);
+        }
+    }
+
+    public List<Map<String, Object>> getCheckpointsInHabitat(long habitatId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return checkpointRepository.getCheckpointsInHabitat(conn, habitatId);
         }
     }
 

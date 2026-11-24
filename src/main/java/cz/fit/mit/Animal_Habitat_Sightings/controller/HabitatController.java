@@ -1,16 +1,15 @@
 package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.Habitat;
-import cz.fit.mit.Animal_Habitat_Sightings.model.HabitatForm;
+import cz.fit.mit.Animal_Habitat_Sightings.model.forms.HabitatForm;
 import cz.fit.mit.Animal_Habitat_Sightings.service.HabitatService;
 import oracle.spatial.geometry.JGeometry;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/habitats")
@@ -61,5 +60,18 @@ public class HabitatController {
         habitatService.addHabitat(habitat);
 
         return "redirect:/habitats";
+    }
+
+    @GetMapping("/map")
+    public String showHabitatMap(Model model) throws Exception {
+        model.addAttribute("habitats", habitatService.getAllHabitats());
+        return "index";
+    }
+
+    @GetMapping("/{habitatId}/details")
+    @ResponseBody
+    public Map<String, Object> getHabitatDetails(@PathVariable long habitatId)
+            throws Exception {
+        return habitatService.getHabitatDetails(habitatId);
     }
 }

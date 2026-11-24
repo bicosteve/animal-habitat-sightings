@@ -19,6 +19,107 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     ).addTo(map);
 
+    const habitatLayers = L.featureGroup().addTo(map);
+    function displayHabitats() {
+        habitatLayers.clearLayers();
+
+        habitats.forEach(habitat => {
+            const geometry = habitat.geometry;
+
+            if (!geometry || geometry.gtype !== 2003) {
+                return;
+            }
+
+            const elemInfo = geometry.elemInfo;
+            const ordinates = geometry.ordinates;
+
+            if (!elemInfo || !ordinates) {
+                return;
+            }
+
+            const rings = [];
+
+            // Read each polygon ring from SDO_ELEM_INFO
+            for (let i = 0; i < elemInfo.length; i += 3) {
+                const start = elemInfo[i] - 1;
+                const end = i + 3 < elemInfo.length
+                    ? elemInfo[i + 3] - 1
+                    : ordinates.length;
+
+                const ring = [];
+
+                for (let j = start; j < end; j += 2) {
+                    ring.push([
+                        ordinates[j + 1],
+                        ordinates[j]
+                    ]);
+                }
+
+                rings.push(ring);
+                console.log("Parsed rings for", habitat.name, rings);
+            }
+
+            const polygon = L.polygon(rings, {
+                color: "#3388ff",
+                weight: 2,
+                fillColor: "#3388ff",
+                fillOpacity: 0.25,
+                pmIgnore: true
+            });
+
+            // Safely display the habitat name
+            const popup = document.createElement("div");
+            popup.textContent = habitat.name;
+            polygon.bindTooltip(habitat.name, {
+                permanent: true,
+                direction: "center",
+                className: "habitat-label"
+            });
+
+            polygon.on("click", () => {
+                fetch(`/habitats/${habitat.id}/details`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to load habitat details");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayHabitatDetails(data);
+                    })
+                    .catch(error => console.error(error));
+            });
+
+            habitatLayers.addLayer(polygon);
+        });
+
+        if (habitatLayers.getLayers().length > 0) {
+            map.fitBounds(habitatLayers.getBounds());
+        }
+    }
+
+    function displayHabitatDetails(data) {
+        const panel = document.getElementById("detailsPanel");
+
+        panel.innerHTML = `
+        <div class="card-header">
+            <strong>${data.habitatName}</strong>
+        </div>
+        <div class="card-body">
+            <p><strong>Habitat ID:</strong> ${data.habitatId}</p>
+            <p><strong>Animal:</strong> ${data.animalName}</p>
+            <p><strong>Area:</strong> ${Number(data.area).toFixed(2)} m²</p>
+            <p><strong>Perimeter:</strong> ${Number(data.perimeter).toFixed(2)} m</p>
+            <p><strong>Created:</strong> ${data.createdAt ?? "Unknown"}</p>
+            <p><strong>Centroid:</strong> ${
+            data.centroidLongitude != null
+                ? `${Number(data.centroidLongitude).toFixed(6)}, ${Number(data.centroidLatitude).toFixed(6)}`
+                : "Unavailable"
+        }</p>
+        </div>
+    `;
+    }
+
     // Convert Leaflet geometry into Oracle SDO format
     function convertToSdo(layer) {
 
@@ -117,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const geometries = [];
 
         map.eachLayer(layer => {
-            if (layer instanceof L.Polygon) {
+            if (layer instanceof L.Polygon && !habitatLayers.hasLayer(layer)) {
                 try {
                     const geometry = convertToSdo(layer);
 
@@ -137,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
             JSON.stringify(geometries)
         );
 
-        console.log("Saved polygons:", geometries);
     }
 
     // Enable Leaflet-Geoman drawing controls
@@ -166,11 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
         layer.on("pm:edit", saveGeometries);
     });
 
-
     // Handle removed geometries
     map.on("pm:remove", event => {
         saveGeometries();
     });
 
     map.on("pm:cut", saveGeometries);
+    displayHabitats();
 });
