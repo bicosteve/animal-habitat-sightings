@@ -92,8 +92,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!--
+			Loads credentials from a local .env file during development.
+			Use the Spring Boot 4 module (the generic "spring-dotenv" artifact is
+			for plain Spring Framework and does not auto-register under Boot 4).
+		-->
+		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>springboot4-dotenv</artifactId>
+			<version>5.1.0</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 

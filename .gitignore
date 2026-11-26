@@ -32,3 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 .DS_Store
+
+### Environment variables / secrets ###
+.env
+!.env-example

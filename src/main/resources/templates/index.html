@@ -19,7 +19,7 @@
 
     <!--Leaflet-Geoman-->
     <link rel="stylesheet"
-          href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2/dist/leaflet-geoman.css">
+          href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.css">
 
     <link rel="stylesheet"
           th:href="@{/css/style.css}">
@@ -39,9 +39,10 @@
                 <div class="card-body">
                     <h5>Quick Actions</h5>
 
-                    <button class="btn btn-success w-100 mb-2">
+                    <a th:href="@{/habitats/new}" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-plus-circle"></i>
                         Add Habitat
-                    </button>
+                    </a>
 
                     <button class="btn btn-primary w-100 mb-3">
                         Add Sighting
@@ -113,7 +114,12 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <!-- Leaflet-Geoman-->
-<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2/dist/leaflet-geoman.js"></script>
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.js"></script>
+
+<!-- Pass habitats from Spring to JavaScript -->
+<script th:inline="javascript">
+    const habitats = /*[[${habitats}]]*/ [];
+</script>
 
 <!-- Application map initialization -->
 <script th:src="@{/js/map.js}"></script>
