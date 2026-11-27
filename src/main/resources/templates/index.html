@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Animal Habitats & Sightings</title>
+    <title>Animal Habitats &amp; Sightings</title>
 
     <!-- Bootstrap 5 -->
     <link
@@ -15,123 +15,209 @@
             rel="stylesheet">
 
     <link rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-    <!--Leaflet-Geoman-->
-    <link rel="stylesheet"
-          href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.css">
-
-    <link rel="stylesheet"
           th:href="@{/css/style.css}">
+
+    <style>
+        /* Rows that link to a detail/edit page show a pointer. */
+        tr.js-row {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar('dashboard')}"></div>
 
+<main class="container-fluid mt-4">
 
-<main class="container-fluid mt-3">
     <div class="row g-3">
 
-        <!-- Left sidebar -->
-        <aside class="col-12 col-lg-3 col-xl-2">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Quick Actions</h5>
+    <!-- Left panel: quick actions -->
+    <aside class="col-12 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Quick Actions</strong>
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a th:href="@{/animals/new}" class="btn btn-warning">+ Add Animal</a>
+                <a th:href="@{/sightings/new}" class="btn btn-primary">+ Add Sighting</a>
+                <a th:href="@{/habitats/new}" class="btn btn-success">+ Add Habitat</a>
+            </div>
+        </div>
+    </aside>
 
-                    <a th:href="@{/animals/new}" class="btn btn-warning w-100 mb-2">
-                        <i class="bi bi-plus-circle"></i>
-                        Add Animal
+    <!-- Middle panel: listed entities -->
+    <section class="col-12 col-lg-6">
+
+    <!-- Animals -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Animals</strong>
+            <a th:href="@{/animals}" class="small">View all &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Animal Name</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="animal : ${animals}"
+                    class="js-row"
+                    th:data-href="@{/animals/{id}/edit(id=${animal.animalId})}">
+                    <td th:text="${animal.animalId}">1</td>
+                    <td th:text="${animal.animalName}">Animal name</td>
+                    <td>
+                        <span th:if="${animal.description}"
+                              th:text="${animal.description}">Description</span>
+                        <span th:unless="${animal.description}" class="text-muted">&mdash;</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(animals)}">
+                    <td colspan="3" class="text-center text-muted">
+                        No animals added yet.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sightings -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Sightings</strong>
+            <a th:href="@{/sightings}" class="small">View all &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Animal</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="sighting : ${sightings}"
+                    class="js-row"
+                    th:data-href="@{'/sightings/' + ${sighting.sightingId}}">
+                    <td th:text="${sighting.sightingId}">1</td>
+                    <td>
+                        <img th:if="${sighting.hasImage}"
+                             alt="Sighting image"
+                             th:src="@{'/sightings/' + ${sighting.sightingId} + '/image'}"
+                             style="height:40px;width:auto;border-radius:4px;">
+                        <span th:unless="${sighting.hasImage}" class="text-muted">&mdash;</span>
+                    </td>
+                    <td th:text="${sighting.animalName}">Animal name</td>
+                    <td th:text="${sighting.sightedAt != null
+                            ? #temporals.format(sighting.sightedAt, 'yyyy-MM-dd HH:mm')
+                            : '—'}">2026-01-01 12:00</td>
+                    <td th:text="${sighting.latitude != null
+                            ? #numbers.formatDecimal(sighting.latitude, 1, 5)
+                              + ', ' + #numbers.formatDecimal(sighting.longitude, 1, 5)
+                            : '—'}">0.00000, 0.00000</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(sightings)}">
+                    <td colspan="5" class="text-center text-muted">
+                        No sightings added yet.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Habitats -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Habitats</strong>
+            <a th:href="@{/habitats}" class="small">View all &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Habitat Name</th>
+                    <th>Animal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="habitat : ${habitats}"
+                    class="js-row"
+                    th:data-href="@{'/habitats/' + ${habitat.habitatId} + '/details'}">
+                    <td th:text="${habitat.habitatId}">1</td>
+                    <td th:text="${habitat.habitatName}">Habitat name</td>
+                    <td th:text="${habitat.animalId}">0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(habitats)}">
+                    <td colspan="3" class="text-center text-muted">
+                        No habitats added yet.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    </section>
+
+    <!-- Right panel: analysis -->
+    <aside class="col-12 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Analysis</strong>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Explore the data spatially.
+                </p>
+                <div class="d-grid gap-2">
+                    <a th:href="@{/analysis}" class="btn btn-outline-primary">
+                        Distance Analysis
                     </a>
-
-                    <a th:href="@{/sightings/new}" class="btn btn-primary w-100 mb-2">
-                        <i class="bi bi-plus-circle"></i>
-                        Add Sighting
+                    <a th:href="@{/habitats/map}" class="btn btn-outline-secondary">
+                        Open Map
                     </a>
-
-                    <a th:href="@{/habitats/new}" class="btn btn-success w-100 mb-3">
-                        <i class="bi bi-plus-circle"></i>
-                        Add Habitat
-                    </a>
-
-                    <hr>
-
-                    <h6>Filters</h6>
-
-                    <label for="animalFilter"
-                           class="form-label">
-                        Animal
-                    </label>
-
-                    <select id="animalFilter"
-                            class="form-select mb-3">
-                        <option value="">All Animals</option>
-                    </select>
-
-                    <label for="habitatFilter"
-                           class="form-label">
-                        Habitat
-                    </label>
-
-                    <select id="habitatFilter"
-                            class="form-select">
-                        <option value="">All Habitats</option>
-                    </select>
                 </div>
             </div>
-        </aside>
-
-        <!-- Center map -->
-        <section class="col-12 col-lg-6 col-xl-7">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <strong>Habitat & Sighting Map</strong>
-                </div>
-
-                <div class="card-body p-0">
-                    <div id="map"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Right details panel -->
-        <aside class="col-12 col-lg-3">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <strong>Details</strong>
-                </div>
-
-                <div class="card-body" id="detailsPanel">
-                    <p class="text-muted">
-                        Select a habitat or sighting
-                        on the map to view details.
-                    </p>
-                </div>
-            </div>
-        </aside>
+        </div>
+    </aside>
 
     </div>
+
 </main>
 
 <!-- Bootstrap JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Leaflet JavaScript -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Leaflet-Geoman-->
-<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.js"></script>
-
-<!-- Pass habitats from Spring to JavaScript -->
-<script th:inline="javascript">
-    const habitats = /*[[${habitats}]]*/ [];
+<script>
+    (function () {
+        // Make each row navigate to its target, except when a link inside it is clicked.
+        document.querySelectorAll('tr.js-row').forEach(function (row) {
+            row.addEventListener('click', function (event) {
+                if (event.target.closest('a, button')) {
+                    return;
+                }
+                const href = row.getAttribute('data-href');
+                if (href) {
+                    window.location.href = href;
+                }
+            });
+        });
+    })();
 </script>
-
-<!-- Shared geometry utilities (convertToSdo) -->
-<script th:src="@{/js/geometry-draw.js}"></script>
-
-<!-- Application map initialization -->
-<script th:src="@{/js/map.js}"></script>
 
 </body>
 </html>
