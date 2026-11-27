@@ -38,7 +38,10 @@ public class CheckpointRepository {
             while (rset.next()) {
 
                 Struct obj = (Struct) rset.getObject("geom");
-                JGeometry geometry = JGeometry.loadJS(obj);
+
+                JGeometry geometry = obj != null
+                        ? JGeometry.loadJS(obj)
+                        : null;
 
                 Timestamp timestamp = rset.getTimestamp("created_at");
 
