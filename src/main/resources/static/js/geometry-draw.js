@@ -209,29 +209,45 @@
         setStatus("Draw the geometry on the map to continue.", "alert-info");
 
         // On an edit form we seed the map with the existing geometry so the
-        // user sees it and can move/redraw it. Currently only a point seed is
-        // supported (checkpoints, sightings). The seeded layer behaves exactly
-        // like a freshly drawn one: it writes the hidden fields and updates them
-        // when dragged/edited.
-        const seed = config.initialPoint;
-        if (shape === "point" && seed
-                && typeof seed.lat === "number" && typeof seed.lng === "number") {
+        // user sees it and can reshape/redraw it. Point seeds (checkpoints,
+        // sightings) and line seeds (trails) are supported. A seeded layer
+        // behaves exactly like a freshly drawn one: it writes the hidden fields
+        // and updates them when edited/dragged.
+        function attachSeed(layer, view) {
+            currentLayer = layer;
+            if (layer.pm && typeof layer.pm.enable === "function") {
+                layer.pm.enable();
+            }
+            if (view) {
+                map.setView(view, zoom);
+            }
+            writeFields(layer);
+            layer.on("pm:edit", () => writeFields(layer));
+            layer.on("dragend", () => writeFields(layer));
+        }
 
-            const marker = L.marker([seed.lat, seed.lng], {
+        const pointSeed = config.initialPoint;
+        if (shape === "point" && pointSeed
+                && typeof pointSeed.lat === "number" && typeof pointSeed.lng === "number") {
+
+            const marker = L.marker([pointSeed.lat, pointSeed.lng], {
                 draggable: true,
                 pmIgnore: false
             }).addTo(map);
-            currentLayer = marker;
+            attachSeed(marker, [pointSeed.lat, pointSeed.lng]);
+        }
 
-            // Enable Geoman editing on the seeded marker so the removal/drag
-            // tools act on it too, recenter, and write the current fields.
-            if (typeof marker.pm !== "undefined" && typeof marker.pm.enable === "function") {
-                marker.pm.enable();
+        const lineSeed = config.initialLine;
+        if (shape === "line" && Array.isArray(lineSeed) && lineSeed.length >= 2) {
+
+            const polyline = L.polyline(lineSeed, { pmIgnore: false }).addTo(map);
+            attachSeed(polyline, null);
+            // Fit the map to the whole line rather than a single zoom level.
+            try {
+                map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+            } catch (ignored) {
+                // Keep the default view if bounds can't be computed.
             }
-            map.setView([seed.lat, seed.lng], zoom);
-            writeFields(marker);
-            marker.on("pm:edit", () => writeFields(marker));
-            marker.on("dragend", () => writeFields(marker));
         }
 
         map.on("pm:create", event => {
