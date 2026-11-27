@@ -90,24 +90,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">
-                        Notes
-                    </label>
-
-                    <textarea class="form-control"
-                              th:classappend="${#fields.hasErrors('notes')} ? 'is-invalid'"
-                              id="notes"
-                              th:field="*{notes}"
-                              rows="3"
-                              maxlength="1000"
-                              placeholder="Optional observations"></textarea>
-
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('notes')}"
-                         th:errors="*{notes}">Notes error</div>
-                </div>
-
-                <div class="mb-3">
                     <label for="image" class="form-label">
                         Photo <span class="text-muted">(optional)</span>
                     </label>

@@ -118,6 +118,17 @@
                                           + ', ' + #numbers.formatDecimal(sighting.longitude, 1, 5)
                                         : '—'}">49.19510, 16.60680</dd>
 
+                        <dt class="col-sm-4">Biome</dt>
+                        <dd class="col-sm-8">
+                            <span th:if="${#lists.isEmpty(biomes)}" class="text-muted">
+                                &mdash; (outside any biome)
+                            </span>
+                            <span th:each="biome, iter : ${biomes}">
+                                <span th:text="${biome.biomeName}">Savanna</span><span
+                                        th:if="${!iter.last}">, </span>
+                            </span>
+                        </dd>
+
                         <dt class="col-sm-4">Notes</dt>
                         <dd class="col-sm-8">
                             <span th:if="${sighting.notes}" th:text="${sighting.notes}">Notes</span>

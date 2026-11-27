@@ -85,6 +85,17 @@ public class SightingService {
         }
     }
 
+    /**
+     * Returns the biome(s) whose polygon contains this sighting's point,
+     * computed live via Oracle Spatial. Empty if the point is outside every
+     * biome; usually one entry; several if biome polygons overlap.
+     */
+    public List<Map<String, Object>> getSightingBiomes(long sightingId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return sightingRepository.getContainingBiomes(conn, sightingId);
+        }
+    }
+
     public void deleteSighting(long sightingId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             sightingRepository.deleteSighting(conn, sightingId);
