@@ -30,6 +30,12 @@ public class CheckpointService {
         }
     }
 
+    public void updateCheckpoint(Checkpoint checkpoint) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            checkpointRepository.updateCheckpoint(conn, checkpoint);
+        }
+    }
+
     public Map<String, Object> getCheckpointDetails(long checkpointId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return checkpointRepository.getCheckpointDetails(conn, checkpointId);

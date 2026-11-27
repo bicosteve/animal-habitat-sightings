@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="'Checkpoint — ' + ${checkpoint.checkpointName}">Checkpoint detail</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar('checkpoints')}"></div>
+
+<main class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="'Checkpoint — ' + ${checkpoint.checkpointName}">Checkpoint detail</h2>
+
+        <a th:href="@{/checkpoints}" class="btn btn-outline-secondary">
+            &larr; Back to checkpoints
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">ID</dt>
+                <dd class="col-sm-8" th:text="${checkpoint.checkpointId}">1</dd>
+
+                <dt class="col-sm-4">Name</dt>
+                <dd class="col-sm-8" th:text="${checkpoint.checkpointName}">Checkpoint name</dd>
+
+                <dt class="col-sm-4">Type</dt>
+                <dd class="col-sm-8">
+                    <span th:if="${checkpoint.checkpointType}"
+                          th:text="${checkpoint.checkpointType}">Type</span>
+                    <span th:unless="${checkpoint.checkpointType}" class="text-muted">&mdash;</span>
+                </dd>
+
+                <dt class="col-sm-4">Description</dt>
+                <dd class="col-sm-8">
+                    <span th:if="${checkpoint.description}"
+                          th:text="${checkpoint.description}">Description</span>
+                    <span th:unless="${checkpoint.description}" class="text-muted">&mdash;</span>
+                </dd>
+
+                <dt class="col-sm-4">Location</dt>
+                <dd class="col-sm-8"
+                    th:text="${checkpoint.latitude != null
+                                ? #numbers.formatDecimal(checkpoint.latitude, 1, 5)
+                                  + ', ' + #numbers.formatDecimal(checkpoint.longitude, 1, 5)
+                                : '—'}">49.19510, 16.60680</dd>
+
+                <dt class="col-sm-4">Created</dt>
+                <dd class="col-sm-8"
+                    th:text="${checkpoint.createdAt != null
+                                ? #dates.format(checkpoint.createdAt, 'yyyy-MM-dd HH:mm')
+                                : '—'}">2026-01-01 12:00</dd>
+            </dl>
+        </div>
+
+        <div class="card-footer d-flex gap-2">
+            <a th:href="@{'/checkpoints/' + ${checkpoint.checkpointId} + '/edit'}"
+               class="btn btn-outline-primary">
+                Edit
+            </a>
+
+            <button type="button"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal">
+                Delete
+            </button>
+        </div>
+    </div>
+
+</main>
+
+<!-- Delete-confirmation modal. -->
+<div class="modal fade" id="deleteModal" tabindex="-1"
+     aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete checkpoint</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    Delete the checkpoint
+                    <strong th:text="${checkpoint.checkpointName}">the checkpoint</strong>?
+                    This cannot be undone.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form th:action="@{'/checkpoints/' + ${checkpoint.checkpointId} + '/delete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-danger">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
