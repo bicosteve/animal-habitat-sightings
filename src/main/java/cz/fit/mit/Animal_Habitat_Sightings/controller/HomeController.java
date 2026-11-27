@@ -28,9 +28,4 @@ public class HomeController {
         model.addAttribute("habitats", habitatService.getAllHabitats());
         return "index";
     }
-
-    @GetMapping("/analysis")
-    public String analysis(){
-        return "analysis";
-    }
 }
