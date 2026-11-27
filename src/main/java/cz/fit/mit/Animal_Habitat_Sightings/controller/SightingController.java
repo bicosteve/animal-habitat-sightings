@@ -84,11 +84,14 @@ public class SightingController {
                 ? image.getBytes()
                 : null;
 
-        boolean imageStored = sightingService.addSighting(sighting, imageBytes);
+        boolean imageFullyProcessed = sightingService.addSighting(sighting, imageBytes);
 
-        if (!imageStored) {
+        if (!imageFullyProcessed) {
+            // Either the photo could not be stored at all, or it was stored but
+            // its Oracle Multimedia feature descriptors could not be built. In
+            // both cases the sighting itself is saved.
             redirectAttributes.addFlashAttribute("warning",
-                    "Sighting saved, but the image could not be attached.");
+                    "Sighting saved, but the image could not be fully processed.");
         }
 
         return "redirect:/sightings";
@@ -111,6 +114,41 @@ public class SightingController {
                 || lower.endsWith(".jpeg");
 
         return mimeOk && extensionOk;
+    }
+
+    /**
+     * Shows the detail page for a single sighting: its image and details, with
+     * controls to rotate the image (view-only) and delete the sighting.
+     */
+    @GetMapping("/{sightingId}")
+    public String viewSighting(@PathVariable long sightingId,
+                               Model model,
+                               RedirectAttributes redirectAttributes) throws Exception {
+
+        Map<String, Object> sighting = sightingService.getSightingDetails(sightingId);
+
+        if (sighting == null) {
+            redirectAttributes.addFlashAttribute("warning",
+                    "That sighting no longer exists.");
+            return "redirect:/sightings";
+        }
+
+        model.addAttribute("sighting", sighting);
+        return "sighting-detail";
+    }
+
+    /**
+     * Deletes the sighting and its image (if any) in a single transaction, then
+     * returns to the list with a success flash.
+     */
+    @PostMapping("/{sightingId}/delete")
+    public String deleteSighting(@PathVariable long sightingId,
+                                 RedirectAttributes redirectAttributes) throws Exception {
+
+        sightingService.deleteSighting(sightingId);
+        redirectAttributes.addFlashAttribute("success",
+                "Sighting deleted, along with its photo.");
+        return "redirect:/sightings";
     }
 
     /**
