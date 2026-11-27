@@ -39,14 +39,20 @@
                 <div class="card-body">
                     <h5>Quick Actions</h5>
 
-                    <a th:href="@{/habitats/new}" class="btn btn-success w-100 mb-2">
+                    <a th:href="@{/animals/new}" class="btn btn-warning w-100 mb-2">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Animal
+                    </a>
+
+                    <a th:href="@{/sightings/new}" class="btn btn-primary w-100 mb-2">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Sighting
+                    </a>
+
+                    <a th:href="@{/habitats/new}" class="btn btn-success w-100 mb-3">
                         <i class="bi bi-plus-circle"></i>
                         Add Habitat
                     </a>
-
-                    <button class="btn btn-primary w-100 mb-3">
-                        Add Sighting
-                    </button>
 
                     <hr>
 

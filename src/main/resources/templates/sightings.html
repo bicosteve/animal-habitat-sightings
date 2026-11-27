@@ -7,12 +7,21 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Sightings | Animal Habitats & Sightings</title>
+    <title>Sightings | Animal Habitats &amp; Sightings</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .sighting-thumb {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
@@ -20,17 +29,24 @@
 
 <main class="container mt-4">
 
+    <div class="alert alert-warning alert-dismissible fade show"
+         role="alert"
+         th:if="${warning}">
+        <span th:text="${warning}">Warning</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2>Animal Sightings</h2>
-            <p class="text-muted">
+            <p class="text-muted mb-0">
                 View and manage recorded animal observations.
             </p>
         </div>
 
-        <button class="btn btn-primary" disabled>
+        <a th:href="@{/sightings/new}" class="btn btn-success">
             + Add Sighting
-        </button>
+        </a>
     </div>
 
     <div class="card shadow-sm">
@@ -48,14 +64,42 @@
                         <th>Animal</th>
                         <th>Date</th>
                         <th>Location</th>
-                        <th>Actions</th>
+                        <th>Notes</th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    <tr>
+                    <tr th:each="sighting : ${sightings}">
+                        <td th:text="${sighting.sightingId}">1</td>
+
+                        <td>
+                            <img th:if="${sighting.hasImage}"
+                                 class="sighting-thumb"
+                                 th:src="@{'/sightings/' + ${sighting.sightingId} + '/image'}"
+                                 alt="Sighting photo">
+                            <span th:unless="${sighting.hasImage}" class="text-muted">&mdash;</span>
+                        </td>
+
+                        <td th:text="${sighting.animalName}">Animal name</td>
+
+                        <td th:text="${sighting.sightedAt != null
+                                      ? #temporals.format(sighting.sightedAt, 'yyyy-MM-dd HH:mm')
+                                      : '—'}">2026-01-01 12:00</td>
+
+                        <td th:text="${sighting.latitude != null
+                                      ? #numbers.formatDecimal(sighting.latitude, 1, 5)
+                                        + ', ' + #numbers.formatDecimal(sighting.longitude, 1, 5)
+                                      : '—'}">49.19510, 16.60680</td>
+
+                        <td>
+                            <span th:if="${sighting.notes}" th:text="${sighting.notes}">Notes</span>
+                            <span th:unless="${sighting.notes}" class="text-muted">&mdash;</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(sightings)}">
                         <td colspan="6" class="text-center text-muted">
-                            No sightings loaded yet.
+                            No sightings recorded yet.
                         </td>
                     </tr>
                     </tbody>

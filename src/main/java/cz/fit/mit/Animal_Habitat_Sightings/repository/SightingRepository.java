@@ -81,6 +81,68 @@ public class SightingRepository {
         return sightings;
     }
 
+    /**
+     * Returns one row per sighting for the list page, joined to the animal name
+     * and flagged with whether an image exists. The point coordinates are
+     * extracted from the geometry for display.
+     */
+    public List<Map<String, Object>> getAllSightingsForList(Connection connection)
+            throws SQLException {
+
+        List<Map<String, Object>> rows = new ArrayList<>();
+
+        String sql = """
+                SELECT s.sighting_id,
+                       s.animal_id,
+                       a.animal_name,
+                       s.sighted_at,
+                       s.notes,
+                       s.geom,
+                       CASE WHEN EXISTS (
+                           SELECT 1 FROM sighting_images i
+                           WHERE i.sighting_id = s.sighting_id
+                       ) THEN 1 ELSE 0 END AS has_image
+                FROM sightings s
+                JOIN animals a ON s.animal_id = a.animal_id
+                ORDER BY s.sighted_at DESC
+                """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rset = stmt.executeQuery()) {
+
+            while (rset.next()) {
+                Struct obj = (Struct) rset.getObject("geom");
+
+                JGeometry geometry = obj != null
+                        ? JGeometry.loadJS(obj)
+                        : null;
+
+                double[] coordinates = geometry != null
+                        ? geometry.getPoint()
+                        : null;
+
+                Timestamp timestamp = rset.getTimestamp("sighted_at");
+
+                Map<String, Object> row = new HashMap<>();
+                row.put("sightingId", rset.getLong("sighting_id"));
+                row.put("animalId", rset.getLong("animal_id"));
+                row.put("animalName", rset.getString("animal_name"));
+                row.put("sightedAt", timestamp != null ? timestamp.toLocalDateTime() : null);
+                row.put("notes", rset.getString("notes"));
+                row.put("hasImage", rset.getInt("has_image") == 1);
+
+                if (coordinates != null && coordinates.length >= 2) {
+                    row.put("longitude", coordinates[0]);
+                    row.put("latitude", coordinates[1]);
+                }
+
+                rows.add(row);
+            }
+        }
+
+        return rows;
+    }
+
     public Map<String, Object> getSightingDetails(Connection connection, long sightingId) throws SQLException {
         String sql = """
                 SELECT s.sighting_id, s.animal_id,  a.animal_name, s.sighted_at, s.notes, s.geom

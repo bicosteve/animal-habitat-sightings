@@ -9,9 +9,15 @@ import org.springframework.stereotype.Service;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class SightingService {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(SightingService.class.getName());
+
     private final SightingRepository sightingRepository;
     private final SightingImageRepository sightingImageRepository;
 
@@ -26,9 +32,47 @@ public class SightingService {
         }
     }
 
+    /**
+     * Saves the sighting and, if image bytes are supplied, attempts to attach
+     * them (best-effort).
+     *
+     * <p>The sighting is always created when this method returns normally. If an
+     * image was supplied but could not be stored (for example a corrupt or
+     * non-image file), the failure is logged and the returned flag is
+     * {@code false} so the caller can warn the user without failing the whole
+     * request. When no image is supplied, the flag is {@code true}.
+     *
+     * @return {@code true} if there was nothing to attach or the image attached
+     *         successfully; {@code false} if an image was supplied but failed.
+     */
+    public boolean addSighting(Sighting sighting, byte[] imageBytes) throws Exception {
+        long sightingId = addSighting(sighting);
+
+        boolean hasImage = imageBytes != null && imageBytes.length > 0;
+        if (!hasImage) {
+            return true;
+        }
+
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            sightingImageRepository.insertImage(conn, sightingId, imageBytes);
+            return true;
+        } catch (Exception ex) {
+            LOGGER.log(Level.WARNING,
+                    "Sighting " + sightingId + " was created but its image could not be stored.",
+                    ex);
+            return false;
+        }
+    }
+
     public List<Sighting> getAllSightings() throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return sightingRepository.getAllSightings(conn);
+        }
+    }
+
+    public List<Map<String, Object>> getAllSightingsForList() throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return sightingRepository.getAllSightingsForList(conn);
         }
     }
 
