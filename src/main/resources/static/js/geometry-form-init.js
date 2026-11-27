@@ -32,6 +32,13 @@
         zoom: num("data-zoom", 12)
     };
 
+    // Optional initial point to seed on edit forms (data-initial-lat/-lng).
+    const initialLat = num("data-initial-lat", NaN);
+    const initialLng = num("data-initial-lng", NaN);
+    if (!Number.isNaN(initialLat) && !Number.isNaN(initialLng)) {
+        options.initialPoint = { lat: initialLat, lng: initialLng };
+    }
+
     function start() {
         if (typeof window.initGeometryForm !== "function") {
             console.error("geometry-form-init: initGeometryForm not loaded.");

@@ -63,6 +63,30 @@ public class CheckpointRepository {
         return checkpoints;
     }
 
+    public void updateCheckpoint(Connection connection, Checkpoint checkpoint) throws Exception {
+        String sql = """
+                UPDATE checkpoints
+                SET checkpoint_name = ?,
+                    checkpoint_type = ?,
+                    description = ?,
+                    geom = ?
+                WHERE checkpoint_id = ?
+                """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, checkpoint.getCheckpointName());
+            stmt.setString(2, checkpoint.getCheckpointType());
+            stmt.setString(3, checkpoint.getDescription());
+
+            Struct obj = JGeometry.storeJS(connection, checkpoint.getGeom());
+            stmt.setObject(4, obj);
+
+            stmt.setLong(5, checkpoint.getCheckpointId());
+
+            stmt.executeUpdate();
+        }
+    }
+
     public void deleteCheckpoint(Connection connection, long checkpoint_id) throws Exception {
         try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM checkpoints WHERE checkpoint_id = ?")) {
             stmt.setLong(1, checkpoint_id);
