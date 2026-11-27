@@ -60,6 +60,14 @@ public class SightingController {
                 form.getSdo_ordinates(),
                 result);
 
+        // Reject unsupported image formats (e.g. WebP, HEIC) up front. The
+        // Oracle ORDImage codec only decodes a limited set of formats and
+        // would otherwise fail with ORA-29400 / IMG-00705 at setProperties().
+        if (image != null && !image.isEmpty() && !isSupportedImage(image)) {
+            result.reject("image.unsupported",
+                    "Only PNG or JPEG images are allowed.");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("animals", animalService.getAllAnimals());
             return "sighting-form";
@@ -84,6 +92,25 @@ public class SightingController {
         }
 
         return "redirect:/sightings";
+    }
+
+    /**
+     * Accepts only PNG and JPEG uploads, checking both the content type and the
+     * file-name extension. Other formats (WebP, HEIC, GIF, ...) are rejected
+     * because the Oracle ORDImage codec cannot decode them.
+     */
+    private boolean isSupportedImage(MultipartFile image) {
+        String contentType = image.getContentType();
+        boolean mimeOk = "image/png".equalsIgnoreCase(contentType)
+                || "image/jpeg".equalsIgnoreCase(contentType);
+
+        String filename = image.getOriginalFilename();
+        String lower = filename != null ? filename.toLowerCase() : "";
+        boolean extensionOk = lower.endsWith(".png")
+                || lower.endsWith(".jpg")
+                || lower.endsWith(".jpeg");
+
+        return mimeOk && extensionOk;
     }
 
     /**

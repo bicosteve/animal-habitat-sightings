@@ -40,6 +40,12 @@
                   enctype="multipart/form-data"
                   id="sightingForm">
 
+                <div class="alert alert-danger"
+                     th:if="${#fields.hasGlobalErrors()}">
+                    <div th:each="err : ${#fields.globalErrors()}"
+                         th:text="${err}">Error</div>
+                </div>
+
                 <div class="mb-3">
                     <label for="animalId" class="form-label">
                         Animal
@@ -110,10 +116,10 @@
                            class="form-control"
                            id="image"
                            name="image"
-                           accept="image/*">
+                           accept=".png,.jpg,.jpeg,image/png,image/jpeg">
 
                     <div class="form-text">
-                        JPEG or PNG, up to 5&nbsp;MB.
+                        PNG or JPEG only, up to 5&nbsp;MB.
                     </div>
                 </div>
 
