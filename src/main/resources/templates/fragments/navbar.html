@@ -37,9 +37,41 @@
 
                 <li class="nav-item">
                     <a class="nav-link"
+                       th:classappend="${activePage == 'animals'} ? 'active'"
+                       th:href="@{/animals}">
+                        Animals
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
                        th:classappend="${activePage == 'habitats'} ? 'active'"
                        th:href="@{/habitats}">
                         Habitats
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'biomes'} ? 'active'"
+                       th:href="@{/biomes}">
+                        Biomes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'checkpoints'} ? 'active'"
+                       th:href="@{/checkpoints}">
+                        Checkpoints
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:classappend="${activePage == 'trails'} ? 'active'"
+                       th:href="@{/trails}">
+                        Trails
                     </a>
                 </li>
 

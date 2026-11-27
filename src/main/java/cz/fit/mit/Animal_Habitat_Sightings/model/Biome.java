@@ -10,6 +10,8 @@ import oracle.spatial.geometry.JGeometry;
 @AllArgsConstructor
 public class Biome {
 
+    // Geographical notation like forest, rain
+
     private long biomeId;
 
     private String biomeName;

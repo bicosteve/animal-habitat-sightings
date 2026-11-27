@@ -16,7 +16,7 @@ public class BiomeForm {
 
     private int sdo_srid;
 
-    private int[] sdo_elem_info;
+    private String sdo_elem_info;
 
-    private double[] sdo_ordinates;
+    private String sdo_ordinates;
 }
