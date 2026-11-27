@@ -46,9 +46,14 @@
 
                     <input type="text"
                            class="form-control"
+                           th:classappend="${#fields.hasErrors('trailName')} ? 'is-invalid'"
                            id="trailName"
                            th:field="*{trailName}"
                            required>
+
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('trailName')}"
+                         th:errors="*{trailName}">Name error</div>
                 </div>
 
                 <div class="mb-3">
@@ -71,6 +76,12 @@
                 <input type="hidden" id="sdo_srid" th:field="*{sdo_srid}">
                 <input type="hidden" id="sdo_elem_info" th:field="*{sdo_elem_info}">
                 <input type="hidden" id="sdo_ordinates" th:field="*{sdo_ordinates}">
+
+                <div class="alert alert-danger"
+                     th:if="${#fields.hasErrors('sdo_elem_info') or #fields.hasErrors('sdo_ordinates')}">
+                    <span th:if="${#fields.hasErrors('sdo_elem_info')}" th:errors="*{sdo_elem_info}">Geometry error</span>
+                    <span th:if="${#fields.hasErrors('sdo_ordinates') and !#fields.hasErrors('sdo_elem_info')}" th:errors="*{sdo_ordinates}">Geometry error</span>
+                </div>
 
                 <div id="geometryStatus" class="alert alert-info">
                     Draw the geometry on the map to continue.

@@ -46,9 +46,14 @@
 
                     <input type="text"
                            class="form-control"
+                           th:classappend="${#fields.hasErrors('habitatName')} ? 'is-invalid'"
                            id="habitatName"
                            th:field="*{habitatName}"
                            required>
+
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('habitatName')}"
+                         th:errors="*{habitatName}">Name error</div>
                 </div>
 
                 <div class="mb-3">
@@ -58,6 +63,7 @@
 
                     <select id="animalId"
                             class="form-select"
+                            th:classappend="${#fields.hasErrors('animalId')} ? 'is-invalid'"
                             th:field="*{animalId}"
                             required>
                         <option value="">Select an animal</option>
@@ -65,6 +71,10 @@
                                 th:value="${animal.animalId}"
                                 th:text="${animal.animalName}">Animal</option>
                     </select>
+
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('animalId')}"
+                         th:errors="*{animalId}">Animal error</div>
 
                     <div class="form-text" th:if="${#lists.isEmpty(animals)}">
                         No animals yet.
@@ -81,6 +91,12 @@
                 <input type="hidden" id="sdo_srid" th:field="*{sdo_srid}">
                 <input type="hidden" id="sdo_elem_info" th:field="*{sdo_elem_info}">
                 <input type="hidden" id="sdo_ordinates" th:field="*{sdo_ordinates}">
+
+                <div class="alert alert-danger"
+                     th:if="${#fields.hasErrors('sdo_elem_info') or #fields.hasErrors('sdo_ordinates')}">
+                    <span th:if="${#fields.hasErrors('sdo_elem_info')}" th:errors="*{sdo_elem_info}">Geometry error</span>
+                    <span th:if="${#fields.hasErrors('sdo_ordinates') and !#fields.hasErrors('sdo_elem_info')}" th:errors="*{sdo_ordinates}">Geometry error</span>
+                </div>
 
                 <div id="geometryStatus" class="alert alert-info">
                     Draw the geometry on the map to continue.

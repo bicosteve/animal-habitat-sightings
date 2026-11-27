@@ -2,8 +2,10 @@ package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.Animal;
 import cz.fit.mit.Animal_Habitat_Sightings.service.AnimalService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +34,11 @@ public class AnimalController {
     }
 
     @PostMapping
-    public String addAnimal(@ModelAttribute Animal animal) throws Exception {
+    public String addAnimal(@Valid @ModelAttribute("animal") Animal animal,
+                            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            return "animal-form";
+        }
         animalService.addAnimal(animal);
         return "redirect:/animals";
     }

@@ -4,12 +4,12 @@ import cz.fit.mit.Animal_Habitat_Sightings.model.Habitat;
 import cz.fit.mit.Animal_Habitat_Sightings.model.HabitatForm;
 import cz.fit.mit.Animal_Habitat_Sightings.service.AnimalService;
 import cz.fit.mit.Animal_Habitat_Sightings.service.HabitatService;
+import jakarta.validation.Valid;
 import oracle.spatial.geometry.JGeometry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/habitats")
@@ -37,20 +37,21 @@ public class HabitatController {
     }
 
     @PostMapping
-    public String addHabitat(@ModelAttribute HabitatForm form) throws Exception {
-        int[] elemInfo = Arrays.stream(form.getSdo_elem_info().split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
+    public String addHabitat(@Valid @ModelAttribute("habitat") HabitatForm form,
+                             BindingResult result,
+                             Model model) throws Exception {
 
-        double[] ordinates = Arrays.stream(form.getSdo_ordinates().split(","))
-                .mapToDouble(Double::parseDouble)
-                .toArray();
-
-        JGeometry geometry = new JGeometry(
+        JGeometry geometry = GeometryBinder.parse(
                 form.getSdo_gtype(),
                 form.getSdo_srid(),
-                elemInfo,
-                ordinates);
+                form.getSdo_elem_info(),
+                form.getSdo_ordinates(),
+                result);
+
+        if (result.hasErrors()) {
+            model.addAttribute("animals", animalService.getAllAnimals());
+            return "habitat-form";
+        }
 
         Habitat habitat = new Habitat(
                 0,

@@ -36,9 +36,14 @@
 
                     <input type="text"
                            class="form-control"
+                           th:classappend="${#fields.hasErrors('animalName')} ? 'is-invalid'"
                            id="animalName"
                            th:field="*{animalName}"
                            required>
+
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('animalName')}"
+                         th:errors="*{animalName}">Name error</div>
                 </div>
 
                 <div class="mb-3">
