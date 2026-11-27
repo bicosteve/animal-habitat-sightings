@@ -114,6 +114,41 @@ public class SightingController {
     }
 
     /**
+     * Shows the detail page for a single sighting: its image and details, with
+     * controls to rotate the image (view-only) and delete the sighting.
+     */
+    @GetMapping("/{sightingId}")
+    public String viewSighting(@PathVariable long sightingId,
+                               Model model,
+                               RedirectAttributes redirectAttributes) throws Exception {
+
+        Map<String, Object> sighting = sightingService.getSightingDetails(sightingId);
+
+        if (sighting == null) {
+            redirectAttributes.addFlashAttribute("warning",
+                    "That sighting no longer exists.");
+            return "redirect:/sightings";
+        }
+
+        model.addAttribute("sighting", sighting);
+        return "sighting-detail";
+    }
+
+    /**
+     * Deletes the sighting and its image (if any) in a single transaction, then
+     * returns to the list with a success flash.
+     */
+    @PostMapping("/{sightingId}/delete")
+    public String deleteSighting(@PathVariable long sightingId,
+                                 RedirectAttributes redirectAttributes) throws Exception {
+
+        sightingService.deleteSighting(sightingId);
+        redirectAttributes.addFlashAttribute("success",
+                "Sighting deleted, along with its photo.");
+        return "redirect:/sightings";
+    }
+
+    /**
      * Streams the stored image for a sighting. Returns 404 when the sighting has
      * no image.
      */

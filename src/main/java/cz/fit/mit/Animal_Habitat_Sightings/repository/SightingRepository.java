@@ -14,10 +14,10 @@ import java.util.Map;
 public class SightingRepository {
     public long insertSighting(Connection connection, Sighting sighting) throws Exception {
         String sql = """
-            INSERT INTO sightings
-            (animal_id, sighted_at, notes, geom)
-            VALUES (?, ?, ?, ?)
-            """;
+                INSERT INTO sightings
+                    (animal_id, sighted_at, notes, geom)
+                VALUES (?, ?, ?, ?)
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(
                 sql, new String[]{"SIGHTING_ID"})) {
@@ -145,7 +145,11 @@ public class SightingRepository {
 
     public Map<String, Object> getSightingDetails(Connection connection, long sightingId) throws SQLException {
         String sql = """
-                SELECT s.sighting_id, s.animal_id,  a.animal_name, s.sighted_at, s.notes, s.geom
+                SELECT s.sighting_id, s.animal_id, a.animal_name, s.sighted_at, s.notes, s.geom,
+                       CASE WHEN EXISTS (
+                           SELECT 1 FROM sighting_images i
+                           WHERE i.sighting_id = s.sighting_id
+                       ) THEN 1 ELSE 0 END AS has_image
                 FROM sightings s
                 JOIN animals a ON s.animal_id = a.animal_id
                 WHERE s.sighting_id = ?
@@ -166,15 +170,18 @@ public class SightingRepository {
                             ? geometry.getPoint()
                             : null;
 
+                    Timestamp timestamp = rset.getTimestamp("sighted_at");
+
                     Map<String, Object> details = new HashMap<>();
 
                     details.put("sightingId", rset.getLong("sighting_id"));
                     details.put("animalId", rset.getLong("animal_id"));
                     details.put("animalName", rset.getString("animal_name"));
-                    details.put("sightedAt", rset.getTimestamp("sighted_at"));
+                    details.put("sightedAt", timestamp != null ? timestamp.toLocalDateTime() : null);
                     details.put("notes", rset.getString("notes"));
+                    details.put("hasImage", rset.getInt("has_image") == 1);
 
-                    if (coordinates != null) {
+                    if (coordinates != null && coordinates.length >= 2) {
                         details.put("longitude", coordinates[0]);
                         details.put("latitude", coordinates[1]);
                     }
@@ -187,8 +194,35 @@ public class SightingRepository {
         return null;
     }
 
+    /**
+     * Deletes the sighting and its image (if any) in one transaction.
+     *
+     * <p>The FK chain is {@code sightings &larr; sighting_images} (1:1, no
+     * cascade in the schema), so we delete the image row first, then the
+     * sighting. The whole thing is atomic -- either both rows go, or neither
+     * does -- which also avoids an {@code ORA-02292} FK violation.
+     */
     public void deleteSighting(Connection connection, long sightingId) throws SQLException {
-        String sql = "DELETE FROM sightings WHERE sighting_id = ?";
+        boolean previousAutoCommit = connection.getAutoCommit();
+        connection.setAutoCommit(false);
+
+        try {
+            runUpdate(connection,
+                    "DELETE FROM sighting_images WHERE sighting_id = ?", sightingId);
+            runUpdate(connection,
+                    "DELETE FROM sightings WHERE sighting_id = ?", sightingId);
+
+            connection.commit();
+        } catch (SQLException ex) {
+            connection.rollback();
+            throw ex;
+        } finally {
+            connection.setAutoCommit(previousAutoCommit);
+        }
+    }
+
+    private void runUpdate(Connection connection, String sql, long sightingId)
+            throws SQLException {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, sightingId);
