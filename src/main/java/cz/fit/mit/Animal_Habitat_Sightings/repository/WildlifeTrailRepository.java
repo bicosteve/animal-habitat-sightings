@@ -90,6 +90,27 @@ public class WildlifeTrailRepository {
         return null;
     }
 
+    /**
+     * Returns the trail's line geometry (for pre-placing it on the edit map),
+     * or {@code null} if the trail does not exist.
+     */
+    public JGeometry getTrailGeometry(Connection connection, long trailId) throws SQLException {
+        String sql = "SELECT geom FROM wildlife_trails WHERE trail_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, trailId);
+
+            try (ResultSet rset = stmt.executeQuery()) {
+                if (rset.next()) {
+                    Struct obj = (Struct) rset.getObject("geom");
+                    return obj != null ? JGeometry.loadJS(obj) : null;
+                }
+            }
+        }
+
+        return null;
+    }
+
     // Habitats the trail intersects
     public List<Map<String, Object>> getTrailsIntersectingHabitat(Connection connection, long habitatId) throws SQLException {
         String sql = """
@@ -157,6 +178,28 @@ public class WildlifeTrailRepository {
         }
 
         return sightings;
+    }
+
+    public void updateTrail(Connection connection, WildlifeTrail trail) throws Exception {
+        String sql = """
+                UPDATE wildlife_trails
+                SET trail_name = ?,
+                    description = ?,
+                    geom = ?
+                WHERE trail_id = ?
+                """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, trail.getTrailName());
+            stmt.setString(2, trail.getDescription());
+
+            Struct obj = JGeometry.storeJS(connection, trail.getGeom());
+            stmt.setObject(3, obj);
+
+            stmt.setLong(4, trail.getTrailId());
+
+            stmt.executeUpdate();
+        }
     }
 
     public void deleteTrail(Connection connection, long trailId) throws SQLException {

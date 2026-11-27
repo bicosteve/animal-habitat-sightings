@@ -3,6 +3,7 @@ package cz.fit.mit.Animal_Habitat_Sightings.service;
 import cz.fit.mit.Animal_Habitat_Sightings.AnimalHabitatSightingsApplication;
 import cz.fit.mit.Animal_Habitat_Sightings.model.WildlifeTrail;
 import cz.fit.mit.Animal_Habitat_Sightings.repository.WildlifeTrailRepository;
+import oracle.spatial.geometry.JGeometry;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -33,6 +34,18 @@ public class WildlifeTrailService {
     public Map<String, Object> getTrailDetails(long trailId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return trailRepository.getTrailDetails(conn, trailId);
+        }
+    }
+
+    public void updateTrail(WildlifeTrail trail) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            trailRepository.updateTrail(conn, trail);
+        }
+    }
+
+    public JGeometry getTrailGeometry(long trailId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return trailRepository.getTrailGeometry(conn, trailId);
         }
     }
 

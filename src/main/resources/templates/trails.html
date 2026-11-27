@@ -13,12 +13,33 @@
           rel="stylesheet">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        /* Rows link to the detail page; show a pointer to signal that. */
+        tr.js-trail-row {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar('trails')}"></div>
 
 <main class="container mt-4">
+
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert"
+         th:if="${success}">
+        <span th:text="${success}">Done</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="alert alert-warning alert-dismissible fade show"
+         role="alert"
+         th:if="${warning}">
+        <span th:text="${warning}">Warning</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -46,16 +67,31 @@
                         <th>ID</th>
                         <th>Trail Name</th>
                         <th>Description</th>
-                        <th>Actions</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    <tr th:each="trail : ${trails}">
+                    <tr th:each="trail : ${trails}"
+                        class="js-trail-row"
+                        th:data-href="@{'/trails/' + ${trail.trailId}}">
                         <td th:text="${trail.trailId}">1</td>
                         <td th:text="${trail.trailName}">Trail name</td>
-                        <td th:text="${trail.description}">Description</td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>
+                            <span th:if="${trail.description}"
+                                  th:text="${trail.description}">Description</span>
+                            <span th:unless="${trail.description}" class="text-muted">&mdash;</span>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary"
+                               th:href="@{'/trails/' + ${trail.trailId}}">
+                                View
+                            </a>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               th:href="@{'/trails/' + ${trail.trailId} + '/edit'}">
+                                Edit
+                            </a>
+                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(trails)}">
                         <td colspan="4" class="text-center text-muted">
@@ -71,5 +107,22 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        // Make each trail row navigate to its detail page, except when a link
+        // or button inside the row is clicked.
+        document.querySelectorAll('tr.js-trail-row').forEach(function (row) {
+            row.addEventListener('click', function (event) {
+                if (event.target.closest('a, button')) {
+                    return;
+                }
+                const href = row.getAttribute('data-href');
+                if (href) {
+                    window.location.href = href;
+                }
+            });
+        });
+    })();
+</script>
 </body>
 </html>

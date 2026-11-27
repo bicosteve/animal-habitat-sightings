@@ -39,6 +39,20 @@
         options.initialPoint = { lat: initialLat, lng: initialLng };
     }
 
+    // Optional initial line to seed on edit forms: data-initial-line holds a
+    // JSON array of [lat, lng] vertices.
+    const rawLine = self.getAttribute("data-initial-line");
+    if (rawLine) {
+        try {
+            const parsed = JSON.parse(rawLine);
+            if (Array.isArray(parsed) && parsed.length >= 2) {
+                options.initialLine = parsed;
+            }
+        } catch (error) {
+            console.error("geometry-form-init: invalid data-initial-line JSON.", error);
+        }
+    }
+
     function start() {
         if (typeof window.initGeometryForm !== "function") {
             console.error("geometry-form-init: initGeometryForm not loaded.");
