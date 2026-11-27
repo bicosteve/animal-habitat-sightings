@@ -1,4 +1,4 @@
-package cz.fit.mit.Animal_Habitat_Sightings.model;
+package cz.fit.mit.Animal_Habitat_Sightings.model.forms;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

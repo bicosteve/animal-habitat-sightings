@@ -1,7 +1,7 @@
 package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.Checkpoint;
-import cz.fit.mit.Animal_Habitat_Sightings.model.CheckpointForm;
+import cz.fit.mit.Animal_Habitat_Sightings.model.forms.CheckpointForm;
 import cz.fit.mit.Animal_Habitat_Sightings.service.CheckpointService;
 import jakarta.validation.Valid;
 import oracle.spatial.geometry.JGeometry;

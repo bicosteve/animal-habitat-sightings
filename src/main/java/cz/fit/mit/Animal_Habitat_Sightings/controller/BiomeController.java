@@ -1,7 +1,7 @@
 package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.Biome;
-import cz.fit.mit.Animal_Habitat_Sightings.model.BiomeForm;
+import cz.fit.mit.Animal_Habitat_Sightings.model.forms.BiomeForm;
 import cz.fit.mit.Animal_Habitat_Sightings.service.BiomeService;
 import jakarta.validation.Valid;
 import oracle.spatial.geometry.JGeometry;

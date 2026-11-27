@@ -1,7 +1,7 @@
 package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.WildlifeTrail;
-import cz.fit.mit.Animal_Habitat_Sightings.model.WildlifeTrailForm;
+import cz.fit.mit.Animal_Habitat_Sightings.model.forms.WildlifeTrailForm;
 import cz.fit.mit.Animal_Habitat_Sightings.service.WildlifeTrailService;
 import jakarta.validation.Valid;
 import oracle.spatial.geometry.JGeometry;

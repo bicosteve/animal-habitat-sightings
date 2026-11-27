@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WildlifeTrailService {
@@ -26,6 +27,24 @@ public class WildlifeTrailService {
     public List<WildlifeTrail> getAllTrails() throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return trailRepository.getAllTrails(conn);
+        }
+    }
+
+    public Map<String, Object> getTrailDetails(long trailId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return trailRepository.getTrailDetails(conn, trailId);
+        }
+    }
+
+    public List<Map<String, Object>> getTrailsIntersectingHabitat(long habitatId) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return trailRepository.getTrailsIntersectingHabitat(conn, habitatId);
+        }
+    }
+
+    public List<Map<String, Object>> getSightingsNearTrail(long trailId, double distance) throws Exception {
+        try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
+            return trailRepository.getSightingsNearTrail(conn, trailId, distance);
         }
     }
 
