@@ -133,6 +133,10 @@ public class SightingController {
             return "redirect:/sightings";
         }
 
+        // Biome is derived from the sighting's point, not stored: find the
+        // biome polygon(s) that contain it (zero, one, or several).
+        model.addAttribute("biomes", sightingService.getSightingBiomes(sightingId));
+
         model.addAttribute("sighting", sighting);
         return "sighting-detail";
     }

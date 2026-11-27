@@ -195,6 +195,48 @@ public class SightingRepository {
     }
 
     /**
+     * Finds the biome(s) whose polygon contains this sighting's point.
+     *
+     * <p>A biome is a drawn landscape region (a polygon); a sighting is a
+     * point. The relationship is purely spatial -- a sighting "is in" a biome
+     * when its point falls within that biome's polygon. This is computed live
+     * with {@code SDO_CONTAINS} rather than stored, so it stays correct even if
+     * biome polygons are later added or edited.
+     *
+     * <p>Returns zero rows (point outside every biome), one row (the usual
+     * case), or several rows (overlapping biomes). Each entry has
+     * {@code biomeId} and {@code biomeName}.
+     */
+    public List<Map<String, Object>> getContainingBiomes(
+            Connection connection, long sightingId) throws SQLException {
+
+        List<Map<String, Object>> biomes = new ArrayList<>();
+
+        String sql = """
+                SELECT b.biome_id, b.biome_name
+                FROM biomes b, sightings s
+                WHERE s.sighting_id = ?
+                  AND SDO_CONTAINS(b.geom, s.geom) = 'TRUE'
+                ORDER BY b.biome_name
+                """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, sightingId);
+
+            try (ResultSet rset = stmt.executeQuery()) {
+                while (rset.next()) {
+                    Map<String, Object> biome = new HashMap<>();
+                    biome.put("biomeId", rset.getLong("biome_id"));
+                    biome.put("biomeName", rset.getString("biome_name"));
+                    biomes.add(biome);
+                }
+            }
+        }
+
+        return biomes;
+    }
+
+    /**
      * Deletes the sighting and its image (if any) in one transaction.
      *
      * <p>The FK chain is {@code sightings &larr; sighting_images} (1:1, no
