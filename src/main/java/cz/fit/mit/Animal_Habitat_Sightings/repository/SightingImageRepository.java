@@ -18,57 +18,76 @@ public class SightingImageRepository {
             Connection connection, long sightingId, byte[] imageData)
             throws Exception {
 
-        String insertSql = """
-                INSERT INTO sighting_images (sighting_id, image)
-                VALUES (?, ORDSYS.ORDImage.init())
-                """;
+        // The ORDImage LOB write-back below (INSERT init -> SELECT ... FOR
+        // UPDATE -> loadDataFromByteArray -> UPDATE) must run as a single
+        // transaction. Under JDBC auto-commit each statement commits on its
+        // own, which releases the FOR UPDATE lock early and leaves the LOB
+        // locator populated with incomplete bytes -- the image is then stored
+        // corrupt (broken on display) without raising an error. We therefore
+        // switch auto-commit off for the duration and commit once at the end.
+        boolean previousAutoCommit = connection.getAutoCommit();
+        connection.setAutoCommit(false);
 
-        try (PreparedStatement stmt = connection.prepareStatement(insertSql)) {
-            stmt.setLong(1, sightingId);
-            stmt.executeUpdate();
-        }
+        try {
+            String insertSql = """
+                    INSERT INTO sighting_images (sighting_id, image)
+                    VALUES (?, ORDSYS.ORDImage.init())
+                    """;
 
-        String selectSql = """
-                SELECT image
-                FROM sighting_images
-                WHERE sighting_id = ?
-                FOR UPDATE
-                """;
+            try (PreparedStatement stmt = connection.prepareStatement(insertSql)) {
+                stmt.setLong(1, sightingId);
+                stmt.executeUpdate();
+            }
 
-        try (PreparedStatement stmt = connection.prepareStatement(selectSql)) {
-            stmt.setLong(1, sightingId);
+            String selectSql = """
+                    SELECT image
+                    FROM sighting_images
+                    WHERE sighting_id = ?
+                    FOR UPDATE
+                    """;
 
-            try (ResultSet resultSet = stmt.executeQuery()) {
+            try (PreparedStatement stmt = connection.prepareStatement(selectSql)) {
+                stmt.setLong(1, sightingId);
 
-                if (!resultSet.next()) {
-                    throw new SQLException("Sighting image record not found.");
-                }
+                try (ResultSet resultSet = stmt.executeQuery()) {
 
-                OracleResultSet rset = (OracleResultSet) resultSet;
+                    if (!resultSet.next()) {
+                        throw new SQLException("Sighting image record not found.");
+                    }
 
-                OrdImage image = (OrdImage) rset.getORAData(
-                        1, OrdImage.getORADataFactory());
+                    OracleResultSet rset = (OracleResultSet) resultSet;
 
-                image.loadDataFromByteArray(imageData);
-                image.setProperties();
+                    OrdImage image = (OrdImage) rset.getORAData(
+                            1, OrdImage.getORADataFactory());
 
-                String updateSql = """
-                        UPDATE sighting_images
-                        SET image = ?
-                        WHERE sighting_id = ?
-                        """;
+                    image.loadDataFromByteArray(imageData);
+                    image.setProperties();
 
-                try (PreparedStatement updateStmt =
-                             connection.prepareStatement(updateSql)) {
+                    String updateSql = """
+                            UPDATE sighting_images
+                            SET image = ?
+                            WHERE sighting_id = ?
+                            """;
 
-                    OraclePreparedStatement oracleStmt =
-                            (OraclePreparedStatement) updateStmt;
+                    try (PreparedStatement updateStmt =
+                                 connection.prepareStatement(updateSql)) {
 
-                    oracleStmt.setORAData(1, image);
-                    oracleStmt.setLong(2, sightingId);
-                    oracleStmt.executeUpdate();
+                        OraclePreparedStatement oracleStmt =
+                                (OraclePreparedStatement) updateStmt;
+
+                        oracleStmt.setORAData(1, image);
+                        oracleStmt.setLong(2, sightingId);
+                        oracleStmt.executeUpdate();
+                    }
                 }
             }
+
+            connection.commit();
+        } catch (Exception ex) {
+            connection.rollback();
+            throw ex;
+        } finally {
+            connection.setAutoCommit(previousAutoCommit);
         }
     }
 

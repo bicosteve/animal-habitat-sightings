@@ -15,8 +15,8 @@ public class AnimalRepository {
     public void insertAnimal(Connection connection, Animal animal) throws SQLException {
         String sql = """
                 INSERT INTO animals
-                (animal_name, scientific_name, description)
-                VALUES (?, ?, ?)
+                (animal_name, description)
+                VALUES (?, ?)
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

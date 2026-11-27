@@ -1,5 +1,6 @@
 package cz.fit.mit.Animal_Habitat_Sightings.model.forms;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckpointForm {
+
+    @NotBlank(message = "Checkpoint name is required.")
     private String checkpointName;
 
     private String checkpointType;
@@ -18,7 +21,9 @@ public class CheckpointForm {
 
     private int sdo_srid;
 
-    private int[] sdo_elem_info;
+    @NotBlank(message = "Place the checkpoint on the map before saving.")
+    private String sdo_elem_info;
 
-    private double[] sdo_ordinates;
+    @NotBlank(message = "Place the checkpoint on the map before saving.")
+    private String sdo_ordinates;
 }

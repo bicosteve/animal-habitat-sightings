@@ -19,15 +19,16 @@ public class HabitatRepository {
                 values(?, ?, ?)
                 """);
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            if (habitat.getGeom() == null) {
+                throw new SQLException("Habitat geometry is required and cannot be null.");
+            }
+
             stmt.setString(1, habitat.getHabitatName());
             stmt.setLong(2, habitat.getAnimalId());
 
-            if (habitat.getGeom() != null) {
-                Struct obj = JGeometry.storeJS(connection, habitat.getGeom());
-                stmt.setObject(3, obj);
-            } else {
-                stmt.setNull(3, Types.STRUCT);
-            }
+            Struct obj = JGeometry.storeJS(connection, habitat.getGeom());
+            stmt.setObject(3, obj);
+
             stmt.executeUpdate();
         }
     }

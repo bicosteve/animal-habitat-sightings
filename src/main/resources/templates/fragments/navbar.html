@@ -9,7 +9,7 @@
     <div class="container-fluid">
 
         <a class="navbar-brand fw-bold" th:href="@{/}">
-            Animal Habitats & Sightings
+            PDBe
         </a>
 
         <button class="navbar-toggler"
@@ -25,6 +25,69 @@
         <div class="collapse navbar-collapse"
              id="mainNavbar">
 
+            <ul class="navbar-nav me-auto">
+
+                <li class="nav-item dropdown"
+                    th:with="manageActive=${#lists.contains(
+                        {'animals','habitats','biomes','checkpoints','trails'}, activePage)}">
+                    <a class="nav-link dropdown-toggle"
+                       th:classappend="${manageActive} ? 'active'"
+                       href="#"
+                       id="manageDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Manage
+                    </a>
+
+                    <ul class="dropdown-menu"
+                        aria-labelledby="manageDropdown">
+
+                        <li>
+                            <a class="dropdown-item"
+                               th:classappend="${activePage == 'animals'} ? 'active'"
+                               th:href="@{/animals}">
+                                Animals
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               th:classappend="${activePage == 'habitats'} ? 'active'"
+                               th:href="@{/habitats}">
+                                Habitats
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               th:classappend="${activePage == 'biomes'} ? 'active'"
+                               th:href="@{/biomes}">
+                                Biomes
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               th:classappend="${activePage == 'checkpoints'} ? 'active'"
+                               th:href="@{/checkpoints}">
+                                Checkpoints
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               th:classappend="${activePage == 'trails'} ? 'active'"
+                               th:href="@{/trails}">
+                                Trails
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+            </ul>
+
             <ul class="navbar-nav ms-auto">
 
                 <li class="nav-item">
@@ -32,14 +95,6 @@
                        th:classappend="${activePage == 'dashboard'} ? 'active'"
                        th:href="@{/}">
                         Dashboard
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link"
-                       th:classappend="${activePage == 'habitats'} ? 'active'"
-                       th:href="@{/habitats}">
-                        Habitats
                     </a>
                 </li>
 

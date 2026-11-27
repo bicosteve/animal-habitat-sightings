@@ -7,12 +7,33 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Sightings | Animal Habitats & Sightings</title>
+    <title>Sightings | Animal Habitats &amp; Sightings</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .sighting-thumb {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* The modal image rotates in 90-degree steps via a data attribute. */
+        #imageModalImg {
+            max-width: 100%;
+            max-height: 70vh;
+            transition: transform 0.2s ease;
+        }
+
+        #imageModalImg[data-rotation="90"]  { transform: rotate(90deg); }
+        #imageModalImg[data-rotation="180"] { transform: rotate(180deg); }
+        #imageModalImg[data-rotation="270"] { transform: rotate(270deg); }
+    </style>
 </head>
 <body>
 
@@ -20,17 +41,24 @@
 
 <main class="container mt-4">
 
+    <div class="alert alert-warning alert-dismissible fade show"
+         role="alert"
+         th:if="${warning}">
+        <span th:text="${warning}">Warning</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2>Animal Sightings</h2>
-            <p class="text-muted">
+            <p class="text-muted mb-0">
                 View and manage recorded animal observations.
             </p>
         </div>
 
-        <button class="btn btn-primary" disabled>
+        <a th:href="@{/sightings/new}" class="btn btn-success">
             + Add Sighting
-        </button>
+        </a>
     </div>
 
     <div class="card shadow-sm">
@@ -48,14 +76,48 @@
                         <th>Animal</th>
                         <th>Date</th>
                         <th>Location</th>
-                        <th>Actions</th>
+                        <th>Notes</th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    <tr>
+                    <tr th:each="sighting : ${sightings}">
+                        <td th:text="${sighting.sightingId}">1</td>
+
+                        <td>
+                            <img th:if="${sighting.hasImage}"
+                                 class="sighting-thumb js-sighting-thumb"
+                                 th:src="@{'/sightings/' + ${sighting.sightingId} + '/image'}"
+                                 th:data-full-src="@{'/sightings/' + ${sighting.sightingId} + '/image'}"
+                                 th:data-animal="${sighting.animalName}"
+                                 role="button"
+                                 tabindex="0"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 alt="Sighting photo">
+                            <span th:unless="${sighting.hasImage}" class="text-muted">&mdash;</span>
+                        </td>
+
+                        <td th:text="${sighting.animalName}">Animal name</td>
+
+                        <td th:text="${sighting.sightedAt != null
+                                        ? #temporals.format(sighting.sightedAt, 'yyyy-MM-dd HH:mm')
+                                        : '—'}">2026-01-01 12:00</td>
+
+                        <td th:text="${sighting.latitude != null
+                                        ? #numbers.formatDecimal(sighting.latitude, 1, 5)
+                                          + ', ' + #numbers.formatDecimal(sighting.longitude, 1, 5)
+                                        : '—'}">49.19510, 16.60680</td>
+
+                        <td>
+                            <span th:if="${sighting.notes}" th:text="${sighting.notes}">Notes</span>
+                            <span th:unless="${sighting.notes}" class="text-muted">&mdash;</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(sightings)}">
                         <td colspan="6" class="text-center text-muted">
-                            No sightings loaded yet.
+                            No sightings recorded yet.
                         </td>
                     </tr>
                     </tbody>
@@ -66,6 +128,79 @@
 
 </main>
 
+<!-- Shared image viewer: one modal reused for every thumbnail.
+     Rotation is view-only (CSS transform); the stored image is unchanged. -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Sighting photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <img id="imageModalImg" src="" alt="Sighting photo" data-rotation="0">
+            </div>
+
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" id="rotateLeftBtn">
+                    &#8634; Rotate left
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="rotateRightBtn">
+                    Rotate right &#8635;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        const modalEl = document.getElementById('imageModal');
+        const modalImg = document.getElementById('imageModalImg');
+        const modalLabel = document.getElementById('imageModalLabel');
+
+        if (!modalEl) {
+            return;
+        }
+
+        let rotation = 0;
+
+        function applyRotation() {
+            // Normalise to 0, 90, 180, 270.
+            rotation = ((rotation % 360) + 360) % 360;
+            modalImg.setAttribute('data-rotation', String(rotation));
+        }
+
+        // When a thumbnail opens the modal, load its image and reset rotation.
+        modalEl.addEventListener('show.bs.modal', function (event) {
+            const thumb = event.relatedTarget;
+            if (!thumb) {
+                return;
+            }
+
+            modalImg.src = thumb.getAttribute('data-full-src');
+
+            const animal = thumb.getAttribute('data-animal');
+            modalLabel.textContent = animal
+                ? 'Sighting photo — ' + animal
+                : 'Sighting photo';
+
+            rotation = 0;
+            applyRotation();
+        });
+
+        document.getElementById('rotateLeftBtn').addEventListener('click', function () {
+            rotation -= 90;
+            applyRotation();
+        });
+
+        document.getElementById('rotateRightBtn').addEventListener('click', function () {
+            rotation += 90;
+            applyRotation();
+        });
+    })();
+</script>
 </body>
 </html>

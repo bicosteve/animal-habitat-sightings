@@ -4,6 +4,10 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
 
 
 server:

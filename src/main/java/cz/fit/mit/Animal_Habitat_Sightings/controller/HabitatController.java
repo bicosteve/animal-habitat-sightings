@@ -2,13 +2,15 @@ package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
 import cz.fit.mit.Animal_Habitat_Sightings.model.Habitat;
 import cz.fit.mit.Animal_Habitat_Sightings.model.forms.HabitatForm;
+import cz.fit.mit.Animal_Habitat_Sightings.service.AnimalService;
 import cz.fit.mit.Animal_Habitat_Sightings.service.HabitatService;
+import jakarta.validation.Valid;
 import oracle.spatial.geometry.JGeometry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @Controller
@@ -16,9 +18,11 @@ import java.util.Map;
 public class HabitatController {
 
     private final HabitatService habitatService;
+    private final AnimalService animalService;
 
-    public HabitatController(HabitatService habitatService) {
+    public HabitatController(HabitatService habitatService, AnimalService animalService) {
         this.habitatService = habitatService;
+        this.animalService = animalService;
     }
 
     @GetMapping
@@ -28,26 +32,28 @@ public class HabitatController {
     }
 
     @GetMapping("/new")
-    public String showAddForm(Model model) {
+    public String showAddForm(Model model) throws Exception {
         model.addAttribute("habitat", new HabitatForm());
+        model.addAttribute("animals", animalService.getAllAnimals());
         return "habitat-form";
     }
 
     @PostMapping
-    public String addHabitat(@ModelAttribute HabitatForm form) throws Exception {
-        int[] elemInfo = Arrays.stream(form.getSdo_elem_info().split(","))
-                .mapToInt(Integer::parseInt)
-                .toArray();
+    public String addHabitat(@Valid @ModelAttribute("habitat") HabitatForm form,
+                             BindingResult result,
+                             Model model) throws Exception {
 
-        double[] ordinates = Arrays.stream(form.getSdo_ordinates().split(","))
-                .mapToDouble(Double::parseDouble)
-                .toArray();
-
-        JGeometry geometry = new JGeometry(
+        JGeometry geometry = GeometryBinder.parse(
                 form.getSdo_gtype(),
                 form.getSdo_srid(),
-                elemInfo,
-                ordinates);
+                form.getSdo_elem_info(),
+                form.getSdo_ordinates(),
+                result);
+
+        if (result.hasErrors()) {
+            model.addAttribute("animals", animalService.getAllAnimals());
+            return "habitat-form";
+        }
 
         Habitat habitat = new Habitat(
                 0,

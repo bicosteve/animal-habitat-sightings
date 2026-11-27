@@ -19,11 +19,6 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/sightings")
-    public String sightings(){
-        return "sightings";
-    }
-
     @GetMapping("/analysis")
     public String analysis(){
         return "analysis";
