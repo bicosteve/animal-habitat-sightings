@@ -54,8 +54,11 @@ public class SightingService {
         }
 
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
-            sightingImageRepository.insertImage(conn, sightingId, imageBytes);
-            return true;
+            // Returns false if the photo was stored but its SQL/MM Still Image
+            // feature descriptors could not be built. Either way the photo is
+            // saved; the flag lets the caller warn that it was not fully
+            // processed (similarity-search metadata is missing).
+            return sightingImageRepository.insertImage(conn, sightingId, imageBytes);
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING,
                     "Sighting " + sightingId + " was created but its image could not be stored.",

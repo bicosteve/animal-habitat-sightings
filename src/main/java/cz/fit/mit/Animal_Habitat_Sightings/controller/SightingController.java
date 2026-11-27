@@ -84,11 +84,14 @@ public class SightingController {
                 ? image.getBytes()
                 : null;
 
-        boolean imageStored = sightingService.addSighting(sighting, imageBytes);
+        boolean imageFullyProcessed = sightingService.addSighting(sighting, imageBytes);
 
-        if (!imageStored) {
+        if (!imageFullyProcessed) {
+            // Either the photo could not be stored at all, or it was stored but
+            // its Oracle Multimedia feature descriptors could not be built. In
+            // both cases the sighting itself is saved.
             redirectAttributes.addFlashAttribute("warning",
-                    "Sighting saved, but the image could not be attached.");
+                    "Sighting saved, but the image could not be fully processed.");
         }
 
         return "redirect:/sightings";
