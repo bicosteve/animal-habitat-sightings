@@ -32,19 +32,7 @@ public class SightingService {
         }
     }
 
-    /**
-     * Saves the sighting and, if image bytes are supplied, attempts to attach
-     * them (best-effort).
-     *
-     * <p>The sighting is always created when this method returns normally. If an
-     * image was supplied but could not be stored (for example a corrupt or
-     * non-image file), the failure is logged and the returned flag is
-     * {@code false} so the caller can warn the user without failing the whole
-     * request. When no image is supplied, the flag is {@code true}.
-     *
-     * @return {@code true} if there was nothing to attach or the image attached
-     *         successfully; {@code false} if an image was supplied but failed.
-     */
+
     public boolean addSighting(Sighting sighting, byte[] imageBytes) throws Exception {
         long sightingId = addSighting(sighting);
 
@@ -54,10 +42,6 @@ public class SightingService {
         }
 
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
-            // Returns false if the photo was stored but its SQL/MM Still Image
-            // feature descriptors could not be built. Either way the photo is
-            // saved; the flag lets the caller warn that it was not fully
-            // processed (similarity-search metadata is missing).
             return sightingImageRepository.insertImage(conn, sightingId, imageBytes);
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING,
@@ -85,11 +69,7 @@ public class SightingService {
         }
     }
 
-    /**
-     * Returns the biome(s) whose polygon contains this sighting's point,
-     * computed live via Oracle Spatial. Empty if the point is outside every
-     * biome; usually one entry; several if biome polygons overlap.
-     */
+
     public List<Map<String, Object>> getSightingBiomes(long sightingId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return sightingRepository.getContainingBiomes(conn, sightingId);

@@ -19,25 +19,7 @@ public class SightingImageRepository {
     private static final Logger LOGGER =
             Logger.getLogger(SightingImageRepository.class.getName());
 
-    /**
-     * Stores the image for a sighting and then populates its Oracle Multimedia
-     * SQL/MM Still Image feature descriptors.
-     *
-     * <p>The work is split into two transactions on purpose:
-     * <ol>
-     *   <li>The ORDImage (the actual photo) is stored and committed first, so
-     *       the photo is always saved.</li>
-     *   <li>The {@code SI_StillImage} + feature columns (average colour, colour
-     *       histogram, positional colour, texture) are then derived from the
-     *       stored image. If that step fails -- which can happen for valid but
-     *       awkward images -- it is rolled back and logged, leaving those
-     *       columns NULL, but the photo from step 1 is untouched.</li>
-     * </ol>
-     *
-     * @return {@code true} if the still-image feature descriptors were
-     *         populated; {@code false} if the photo was stored but the
-     *         descriptors could not be (the photo still displays normally).
-     */
+
     public boolean insertImage(
             Connection connection, long sightingId, byte[] imageData)
             throws Exception {
@@ -46,17 +28,7 @@ public class SightingImageRepository {
         return populateStillImageFeatures(connection, sightingId);
     }
 
-    /**
-     * Writes the ORDImage LOB in a single transaction.
-     *
-     * <p>The write-back (INSERT init -> SELECT ... FOR UPDATE ->
-     * loadDataFromByteArray -> UPDATE) must run as one transaction. Under JDBC
-     * auto-commit each statement commits on its own, which releases the FOR
-     * UPDATE lock early and leaves the LOB locator populated with incomplete
-     * bytes -- the image is then stored corrupt (broken on display) without
-     * raising an error. We therefore switch auto-commit off for the duration
-     * and commit once at the end.
-     */
+
     private void storeOrdImage(
             Connection connection, long sightingId, byte[] imageData)
             throws Exception {
@@ -127,19 +99,7 @@ public class SightingImageRepository {
         }
     }
 
-    /**
-     * Populates the SQL/MM Still Image columns from the already-stored
-     * ORDImage, in its own transaction.
-     *
-     * <p>Per the Oracle Multimedia convention, {@code image_si} is built from
-     * the image's BLOB content ({@code ORDSYS.ORDImage.getContent}), and the
-     * four feature descriptors are derived from that {@code SI_StillImage}.
-     * Because the features depend on {@code image_si}, they are set in a second
-     * statement after it exists.
-     *
-     * @return {@code true} on success; {@code false} if extraction failed (the
-     *         columns are left NULL and the photo is unaffected).
-     */
+
     private boolean populateStillImageFeatures(Connection connection, long sightingId) {
         boolean previousAutoCommit;
         try {
@@ -154,9 +114,6 @@ public class SightingImageRepository {
         try {
             connection.setAutoCommit(false);
 
-            // Step 1: build the SI_StillImage from the stored image's BLOB
-            // content. ORDImage.getContent() is a member function, so it is
-            // called on the column via a table alias (member-call form in DML).
             String stillImageSql = """
                     UPDATE sighting_images si
                     SET si.image_si = SI_StillImage(si.image.getContent())

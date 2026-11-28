@@ -90,10 +90,7 @@ public class WildlifeTrailRepository {
         return null;
     }
 
-    /**
-     * Returns the trail's line geometry (for pre-placing it on the edit map),
-     * or {@code null} if the trail does not exist.
-     */
+
     public JGeometry getTrailGeometry(Connection connection, long trailId) throws SQLException {
         String sql = "SELECT geom FROM wildlife_trails WHERE trail_id = ?";
 
