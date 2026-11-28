@@ -24,11 +24,7 @@ public class AnalysisService {
     private record GeometrySource(String table, String pk, String nameColumn) {
     }
 
-    /**
-     * Whitelist of the entity types that carry a geometry. The table, primary
-     * key, and name-column names come only from this map, never from request
-     * data, so they are safe to splice into SQL.
-     */
+
     private static final Map<String, GeometrySource> SOURCES = Map.of(
             "habitat",   new GeometrySource("habitats", "habitat_id", "habitat_name"),
             "biome",     new GeometrySource("biomes", "biome_id", "biome_name"),
@@ -36,11 +32,7 @@ public class AnalysisService {
             "trail",     new GeometrySource("wildlife_trails", "trail_id", "trail_name")
     );
 
-    /**
-     * Area/perimeter rows with map-ready geometry: each row's {@code geometry}
-     * and {@code centroid} JGeometry values are converted to plain maps the
-     * JavaScript map can read (gtype/srid/elemInfo/ordinates).
-     */
+
     public List<Map<String, Object>> getAreaAndPerimeter() throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             List<Map<String, Object>> rows = analysisRepository.getAreaAndPerimeter(conn);
@@ -60,11 +52,7 @@ public class AnalysisService {
         }
     }
 
-    /**
-     * Shortest distance (metres) between two selected entities, each given as
-     * a type ("habitat"/"biome"/"checkpoint"/"trail") and id. Returns
-     * {@code null} if a type is unknown or a geometry is missing.
-     */
+
     public Double getDistance(String fromType, long fromId,
                               String toType, long toId) throws Exception {
 
@@ -81,11 +69,7 @@ public class AnalysisService {
         }
     }
 
-    /**
-     * A selected feature's map-ready geometry and representative point, or
-     * {@code null} if the type is unknown or the feature does not exist. The
-     * returned map carries {@code geometry} and {@code point} as plain maps.
-     */
+
     public Map<String, Object> getFeatureForMap(String type, long id) throws Exception {
         GeometrySource source = SOURCES.get(type);
         if (source == null) {
@@ -110,11 +94,7 @@ public class AnalysisService {
         }
     }
 
-    /**
-     * Converts an Oracle {@link JGeometry} to the plain gtype/srid/elemInfo/
-     * ordinates map the map JavaScript consumes (mirrors HabitatService), or
-     * {@code null} if the geometry is absent.
-     */
+
     private Map<String, Object> convertGeometry(JGeometry geometry) {
         if (geometry == null) {
             return null;

@@ -36,3 +36,5 @@ build/
 ### Environment variables / secrets ###
 .env
 !.env-example
+
+docs/
