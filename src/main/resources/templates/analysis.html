@@ -183,6 +183,111 @@
         </div>
     </div>
 
+<!-- Section 3: Spatial relationships -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <strong>Spatial Relationships</strong>
+    </div>
+
+    <div class="card-body">
+        <p class="text-muted">
+            Choose a feature to find everything spatially related to it:
+            which biomes and trails cross it, which sightings and checkpoints
+            lie inside it, or how far the habitats around it are.
+        </p>
+
+        <form th:action="@{/analysis/relationships}" method="post" class="row g-3">
+
+            <div class="col-md-8">
+                <label for="subjectSelect" class="form-label">Feature</label>
+                <select id="subjectSelect" class="form-select" required>
+                    <option value="" selected>Choose a feature</option>
+
+                    <optgroup label="Habitats">
+                        <option th:each="h : ${habitats}"
+                                th:value="'habitat:' + ${h.habitatId}"
+                                th:text="${h.habitatName}">Habitat</option>
+                    </optgroup>
+                    <optgroup label="Biomes">
+                        <option th:each="b : ${biomes}"
+                                th:value="'biome:' + ${b.biomeId}"
+                                th:text="${b.biomeName}">Biome</option>
+                    </optgroup>
+                    <optgroup label="Wildlife Trails">
+                        <option th:each="t : ${trails}"
+                                th:value="'trail:' + ${t.trailId}"
+                                th:text="${t.trailName}">Trail</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="col-md-4" id="trailDistanceWrap">
+                <label for="trailDistance" class="form-label">
+                    Trail search radius (m)
+                </label>
+                <input type="number" id="trailDistance" name="trailDistance"
+                       class="form-control" min="1" step="10" value="100">
+                <div class="form-text">
+                    Used when the feature is a wildlife trail.
+                </div>
+            </div>
+
+            <!-- The select value is "type:id"; split it into the separate
+                 request params the controller reads. -->
+            <input type="hidden" name="subjectType" id="subjectType">
+            <input type="hidden" name="subjectId" id="subjectId">
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-success">
+                    Analyse Relationships
+                </button>
+            </div>
+        </form>
+
+        <div class="alert alert-warning mt-3"
+             role="alert"
+             th:if="${relationshipError}">
+            <span th:text="${relationshipError}">Error</span>
+        </div>
+
+        <!-- Results -->
+        <div th:if="${relationships != null}" class="mt-4">
+
+            <h5 class="mb-3">
+                Relationships for
+                <strong th:text="${relationships.subjectName}">feature</strong>
+                <span class="text-muted"
+                      th:text="'(' + ${relationships.subjectTypeLabel} + ')'">(type)</span>
+            </h5>
+
+            <div th:each="group : ${relationships.groups}"
+                 class="card mb-3">
+                <div class="card-header">
+                    <strong th:text="${group.title}">Group</strong>
+                    <span class="text-muted small"
+                          th:text="${group.description}">Description</span>
+                </div>
+
+                <ul class="list-group list-group-flush"
+                    th:if="${!#lists.isEmpty(group.items)}">
+                    <li class="list-group-item"
+                        th:each="item : ${group.items}">
+                        <strong th:text="${item.name}">Item</strong>
+                        <span class="text-muted small"
+                              th:if="${item.detail != null and !item.detail.isEmpty()}"
+                              th:text="' — ' + ${item.detail}">Detail</span>
+                    </li>
+                </ul>
+
+                <div class="card-body text-muted"
+                     th:if="${#lists.isEmpty(group.items)}">
+                    Nothing found.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -202,29 +307,57 @@
         from: /*[[${fromFeature}]]*/ null,
         to: /*[[${toFeature}]]*/ null
     };
+
+    // When a relationship analysis ran: the subject feature plus every
+    // related feature, each with its geometry so the map can draw them.
+    const relationshipFeatures = /*[[${relationshipFeatures}]]*/ [];
 </script>
 
 <script th:src="@{/js/analysis-map.js}"></script>
 
 <script>
     (function () {
-        // Each option value is "type:id". Before submitting, split both
-        // selections into the type/id hidden fields the controller reads.
-        const form = document.querySelector('form[action$="/analysis/distance"]');
-        if (!form) {
-            return;
-        }
-
+        // Each option value is "type:id". Before submitting, split the
+        // selection into the separate request params the controller reads.
         function split(value, typeField, idField) {
             const parts = (value || '').split(':');
             document.getElementById(typeField).value = parts[0] || '';
             document.getElementById(idField).value = parts[1] || '';
         }
 
-        form.addEventListener('submit', function () {
-            split(document.getElementById('fromSelect').value, 'fromType', 'fromId');
-            split(document.getElementById('toSelect').value, 'toType', 'toId');
-        });
+        // --- distance form ---
+        const distanceForm =
+            document.querySelector('form[action$="/analysis/distance"]');
+
+        if (distanceForm) {
+            distanceForm.addEventListener('submit', function () {
+                split(document.getElementById('fromSelect').value, 'fromType', 'fromId');
+                split(document.getElementById('toSelect').value, 'toType', 'toId');
+            });
+        }
+
+        // --- relationships form ---
+        const relationshipForm =
+            document.querySelector('form[action$="/analysis/relationships"]');
+
+        if (relationshipForm) {
+            const subjectSelect = document.getElementById('subjectSelect');
+            const radiusWrap = document.getElementById('trailDistanceWrap');
+
+            // The trail radius only applies when a trail is the subject, so
+            // it is shown only for that case.
+            function toggleRadius() {
+                const isTrail = (subjectSelect.value || '').indexOf('trail:') === 0;
+                radiusWrap.style.display = isTrail ? '' : 'none';
+            }
+
+            subjectSelect.addEventListener('change', toggleRadius);
+            toggleRadius();
+
+            relationshipForm.addEventListener('submit', function () {
+                split(subjectSelect.value, 'subjectType', 'subjectId');
+            });
+        }
     })();
 </script>
 </body>

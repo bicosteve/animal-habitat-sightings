@@ -1,5 +1,6 @@
 package cz.fit.mit.Animal_Habitat_Sightings.controller;
 
+import cz.fit.mit.Animal_Habitat_Sightings.model.analysis.RelationshipResult;
 import cz.fit.mit.Animal_Habitat_Sightings.service.AnalysisService;
 import cz.fit.mit.Animal_Habitat_Sightings.service.BiomeService;
 import cz.fit.mit.Animal_Habitat_Sightings.service.CheckpointService;
@@ -75,6 +76,33 @@ public class AnalysisController {
             // For the map: both features' shapes + representative points.
             model.addAttribute("fromFeature", fromFeature);
             model.addAttribute("toFeature", toFeature);
+        }
+
+        populateModel(model);
+        return "analysis";
+    }
+
+    @PostMapping("/relationships")
+    public String analyzeRelationships(@RequestParam String subjectType,
+                                       @RequestParam long subjectId,
+                                       @RequestParam(defaultValue = "100") double trailDistance,
+                                       Model model) throws Exception {
+
+        try {
+            RelationshipResult result =
+                    analysisService.getRelationships(subjectType, subjectId, trailDistance);
+
+            model.addAttribute("relationships", result);
+            // Plain map list for the JavaScript map (the record itself is
+            // rendered server-side by the template).
+            model.addAttribute("relationshipFeatures", result.mapFeatures());
+            // Echo the selection back so the form keeps what the user chose.
+            model.addAttribute("subjectType", subjectType);
+            model.addAttribute("subjectId", subjectId);
+            model.addAttribute("trailDistance", trailDistance);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("relationshipError",
+                    "That feature could not be analysed.");
         }
 
         populateModel(model);

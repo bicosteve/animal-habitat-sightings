@@ -7,6 +7,9 @@
 //       { type, id, name, geometry, point }; when a distance was calculated the
 //       two features are drawn plus a line between their representative points,
 //       labelled "Distance from {fromName} to {toName} is {X} km".
+//   relationshipFeatures: [{ type, id, name, role, geometry, point }] the
+//       subject of a relationship analysis plus every related feature; the
+//       subject is drawn thicker, each type in its own colour.
 //
 // Geometry objects use Oracle's gtype/srid/elemInfo/ordinates shape, where
 // ordinates are flat [lng, lat, lng, lat, ...] pairs.
@@ -83,7 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (geometry.gtype === 2001) {
             const p = pointLatLng(geometry);
-            return p ? L.marker(p) : null;
+            if (!p) {
+                return null;
+            }
+            // A circle marker, not the default pin: it honours the style
+            // (colour, weight), so each entity type keeps its own colour.
+            return L.circleMarker(p, Object.assign({ radius: 6 }, style));
         }
         return null;
     }
@@ -167,6 +175,52 @@ document.addEventListener("DOMContentLoaded", () => {
             // Keep a visible label even for a very short line.
             L.circleMarker(midpoint, { radius: 0, opacity: 0 }).addTo(map);
         }
+    }
+
+    // --- 3. relationship features ------------------------------------------
+
+    // One colour per entity type, so the subject and the features related
+    // to it are told apart at a glance.
+    const TYPE_STYLE = {
+        habitat: { color: "#3388ff", fill: "#3388ff" },
+        biome: { color: "#2e7d32", fill: "#2e7d32" },
+        checkpoint: { color: "#f9a825", fill: "#f9a825" },
+        trail: { color: "#6a1b9a", fill: "#6a1b9a" },
+        sighting: { color: "#d32f2f", fill: "#d32f2f" }
+    };
+
+    if (Array.isArray(relationshipFeatures) && relationshipFeatures.length > 0) {
+        relationshipFeatures.forEach(feature => {
+            if (!feature || !feature.geometry) {
+                return;
+            }
+
+            const style = TYPE_STYLE[feature.type];
+            if (!style) {
+                return;
+            }
+
+            const isSubject = feature.role === "subject";
+
+            const layer = drawGeometry(feature.geometry, {
+                color: style.color,
+                weight: isSubject ? 4 : 2,
+                fillColor: style.fill,
+                fillOpacity: isSubject ? 0.35 : 0.15,
+                pmIgnore: true
+            });
+            if (!layer) {
+                return;
+            }
+
+            layer.bindTooltip(feature.name || "", {
+                permanent: isSubject,
+                direction: "center",
+                className: "analysis-label"
+            });
+
+            allLayers.addLayer(layer);
+        });
     }
 
     // --- fit to everything drawn ------------------------------------------
