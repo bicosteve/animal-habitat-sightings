@@ -81,11 +81,7 @@ public class SightingRepository {
         return sightings;
     }
 
-    /**
-     * Returns one row per sighting for the list page, joined to the animal name
-     * and flagged with whether an image exists. The point coordinates are
-     * extracted from the geometry for display.
-     */
+
     public List<Map<String, Object>> getAllSightingsForList(Connection connection)
             throws SQLException {
 
@@ -194,19 +190,7 @@ public class SightingRepository {
         return null;
     }
 
-    /**
-     * Finds the biome(s) whose polygon contains this sighting's point.
-     *
-     * <p>A biome is a drawn landscape region (a polygon); a sighting is a
-     * point. The relationship is purely spatial -- a sighting "is in" a biome
-     * when its point falls within that biome's polygon. This is computed live
-     * with {@code SDO_CONTAINS} rather than stored, so it stays correct even if
-     * biome polygons are later added or edited.
-     *
-     * <p>Returns zero rows (point outside every biome), one row (the usual
-     * case), or several rows (overlapping biomes). Each entry has
-     * {@code biomeId} and {@code biomeName}.
-     */
+
     public List<Map<String, Object>> getContainingBiomes(
             Connection connection, long sightingId) throws SQLException {
 
@@ -236,14 +220,7 @@ public class SightingRepository {
         return biomes;
     }
 
-    /**
-     * Deletes the sighting and its image (if any) in one transaction.
-     *
-     * <p>The FK chain is {@code sightings &larr; sighting_images} (1:1, no
-     * cascade in the schema), so we delete the image row first, then the
-     * sighting. The whole thing is atomic -- either both rows go, or neither
-     * does -- which also avoids an {@code ORA-02292} FK violation.
-     */
+
     public void deleteSighting(Connection connection, long sightingId) throws SQLException {
         boolean previousAutoCommit = connection.getAutoCommit();
         connection.setAutoCommit(false);

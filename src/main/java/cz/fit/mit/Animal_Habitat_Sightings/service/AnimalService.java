@@ -42,20 +42,14 @@ public class AnimalService {
         }
     }
 
-    /**
-     * Returns how many sightings and habitats reference this animal, so the UI
-     * can warn before a cascade delete.
-     */
+
     public Map<String, Integer> getDeletionImpact(long animalId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             return animalRepository.countReferences(conn, animalId);
         }
     }
 
-    /**
-     * Deletes the animal and all rows that reference it (sightings, their
-     * images, and habitats) in a single transaction.
-     */
+
     public void deleteAnimal(long animalId) throws Exception {
         try (Connection conn = AnimalHabitatSightingsApplication.getConnection()) {
             animalRepository.cascadeDeleteAnimal(conn, animalId);

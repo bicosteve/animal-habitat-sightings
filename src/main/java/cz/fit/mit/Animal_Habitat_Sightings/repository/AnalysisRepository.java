@@ -9,25 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Read-only spatial analysis queries that span several tables: area and
- * perimeter of the polygon entities (habitats, biomes) and the shortest
- * distance between any two geometries regardless of their type.
- */
+
 @Repository
 public class AnalysisRepository {
 
-    /** Tolerance (in the layer's units) passed to the SDO_GEOM functions. */
     private static final double TOLERANCE = 0.05;
 
-    /**
-     * Area (SQ_M) and perimeter (M) of every habitat and every biome, each
-     * with its polygon geometry and centroid so the map can draw the shape
-     * and place a label. Each row carries {@code type} ("Habitat"/"Biome"),
-     * {@code name}, {@code area}, {@code perimeter}, {@code geometry}
-     * ({@link JGeometry} polygon) and {@code centroid} ({@link JGeometry}
-     * point), ordered by type then name.
-     */
     public List<Map<String, Object>> getAreaAndPerimeter(Connection connection) throws SQLException {
         String sql = """
                 SELECT 'Habitat' AS type, habitat_name AS name,
@@ -78,12 +65,7 @@ public class AnalysisRepository {
         return rows;
     }
 
-    /**
-     * Shortest distance (in metres) between any two geometries, identified by
-     * their table and primary-key column (supplied by the service from a
-     * fixed whitelist, never from user input) and their ids. Returns
-     * {@code null} if either geometry cannot be found.
-     */
+
     public Double getDistance(Connection connection,
                               String fromTable, String fromPk, long fromId,
                               String toTable, String toPk, long toId) throws SQLException {
@@ -107,14 +89,7 @@ public class AnalysisRepository {
         return null;
     }
 
-    /**
-     * Returns a selected feature's own geometry plus a single representative
-     * point (centroid for a polygon, a point on the surface/line otherwise) so
-     * the map can draw the feature and anchor the connecting distance line.
-     * The map carries {@code geometry} ({@link JGeometry}) and
-     * {@code point} ({@link JGeometry} point), or is empty if not found. The
-     * table and primary-key names come from the service whitelist.
-     */
+
     public Map<String, Object> getFeatureForMap(Connection connection,
                                                 String table, String pk, String nameColumn,
                                                 long id) throws SQLException {
